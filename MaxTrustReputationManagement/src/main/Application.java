@@ -17,7 +17,7 @@ public class Application {
 
 		TropicalMatrix tm = new TropicalMatrix(numberOfAgent, true);
 
-		System.out.println("Position in colums :");
+		/*System.out.println("Position in colums :");
 		printPositionOfAgents(tm.getPositionOfAgentInTrustMatrixColumn());
 		System.out.println("Position in rows :");
 		printPositionOfAgents(tm.getPositionOfAgentInTrustMatrixRow());
@@ -65,6 +65,11 @@ public class Application {
 		printPositionOfAgents(tm.getPositionOfAgentInTrustMatrixRow());
 		System.out.println();
 		printTrustMatrix(tm.getTrustMatrix());
+		*/
+		printTrustMatrix(tm.getTrustMatrix());
+		System.out.println();
+		TropicalMatrix transposed = new TropicalMatrix(numberOfAgent, tm.getTranspose());
+		printTrustMatrix(transposed.getTrustMatrix());
 
 	}
 

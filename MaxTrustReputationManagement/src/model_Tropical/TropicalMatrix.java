@@ -14,6 +14,11 @@ public class TropicalMatrix {
 		
 	}
 	
+	public TropicalMatrix(int numberOfAgent, TropicalAtom[][] trustMatrix) {
+		this(numberOfAgent);
+		this.trustMatrix = trustMatrix;		
+	}
+	
 	public TropicalMatrix(int numberOfAgent, boolean initArbitraryTrustMatrix) {
 		this(numberOfAgent);
 		for (int i = 0; i < numberOfAgent; i++) {
@@ -57,11 +62,11 @@ public class TropicalMatrix {
 	 */
 	public void swapRow(int i, int j) {
 		if (checkValidSwap(i, j)) {
-			TropicalAtom[] rowI = new TropicalAtom[numberOfAgent];
+			TropicalAtom tmp;
 			for (int k = 0; k < numberOfAgent; k++) {
-				rowI[k] = trustMatrix[i][k]; 
+				tmp = trustMatrix[i][k]; 
 				trustMatrix[i][k] = trustMatrix[j][k];
-				trustMatrix[j][k] = rowI[k];
+				trustMatrix[j][k] = tmp;
 			}
 			int positionAgentI = positionOfAgentInTrustMatrixRow[i];
 			positionOfAgentInTrustMatrixRow[i] = positionOfAgentInTrustMatrixRow[j];
@@ -76,11 +81,11 @@ public class TropicalMatrix {
 	 */
 	public void swapColumn(int i, int j) {
 		if (checkValidSwap(i, j)) {
-			TropicalAtom[] columnI = new TropicalAtom[numberOfAgent];
+			TropicalAtom tmp;
 			for (int k = 0; k < numberOfAgent; k++) {
-				columnI[k] = trustMatrix[k][i]; 
+				tmp = trustMatrix[k][i]; 
 				trustMatrix[k][i] = trustMatrix[k][j];
-				trustMatrix[k][j] = columnI[k];
+				trustMatrix[k][j] = tmp;
 			}
 			int positionAgentI = positionOfAgentInTrustMatrixColumn[i];
 			positionOfAgentInTrustMatrixColumn[i] = positionOfAgentInTrustMatrixColumn[j];
@@ -88,4 +93,13 @@ public class TropicalMatrix {
 		}
 	}
 	
+	public TropicalAtom[][] getTranspose(){
+		TropicalAtom[][] transposedMatrix = new TropicalAtom[numberOfAgent][numberOfAgent];
+		for (int i = 0; i < trustMatrix.length; i++) {
+			for (int j = 0; j < trustMatrix[i].length; j++) {
+				transposedMatrix[j][i] = trustMatrix[i][j];
+			}
+		}
+		return transposedMatrix;
+	}
 }
