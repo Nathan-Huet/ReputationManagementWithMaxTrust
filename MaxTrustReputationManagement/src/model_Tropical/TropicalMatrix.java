@@ -37,6 +37,11 @@ public class TropicalMatrix {
 		return !(i == j || i < 0 || j < 0 || i >= trustMatrix.length || j >= trustMatrix.length);
 	}
 	
+	/**
+	 * échange 2 lignes dans la matrice de confiance et maintient le tableau permettant de savoir a quel agent correspond la ligne
+	 * @param i indice de la 1ere ligne à échanger
+	 * @param j indice de la 2e ligne à échanger
+	 */
 	public void swapRow(int i, int j) {
 		if (checkValidSwap(i, j)) {
 			int[] rowI = new int[numberOfAgent];
@@ -45,6 +50,9 @@ public class TropicalMatrix {
 				trustMatrix[i][k] = trustMatrix[j][k];
 				trustMatrix[j][k] = rowI[k];
 			}
+			int positionAgentI = positionOfAgentInTrustMatrixRow[i];
+			positionOfAgentInTrustMatrixRow[i] = positionOfAgentInTrustMatrixRow[j];
+			positionOfAgentInTrustMatrixRow[j] = positionAgentI;
 		}
 	}
 	
@@ -56,6 +64,9 @@ public class TropicalMatrix {
 				trustMatrix[k][i] = trustMatrix[k][j];
 				trustMatrix[k][j] = columnI[k];
 			}
+			int positionAgentI = positionOfAgentInTrustMatrixColumn[i];
+			positionOfAgentInTrustMatrixColumn[i] = positionOfAgentInTrustMatrixColumn[j];
+			positionOfAgentInTrustMatrixColumn[j] = positionAgentI;
 		}
 	}
 	

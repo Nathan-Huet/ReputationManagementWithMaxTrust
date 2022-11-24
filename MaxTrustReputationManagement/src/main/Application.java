@@ -13,14 +13,58 @@ public class Application {
 	public void launch() {
 		int numberOfAgent = 5;
 
-		
+
 		TropicalMatrix tm = new TropicalMatrix(numberOfAgent);
-		
+
+		System.out.println("Position in colums :");
+		printPositionOfAgents(tm.getPositionOfAgentInTrustMatrixColumn());
+		System.out.println("Position in rows :");
+		printPositionOfAgents(tm.getPositionOfAgentInTrustMatrixRow());
+		System.out.println();
 		printTrustMatrix(tm.getTrustMatrix());
-		tm.swapColumn(0, 1);
+
+		tm.swapColumn(0, 4);
+		System.out.println();
+		System.out.println();
+		System.out.println("Position in colums :");
+		printPositionOfAgents(tm.getPositionOfAgentInTrustMatrixColumn());
+		System.out.println("Position in rows :");
+		printPositionOfAgents(tm.getPositionOfAgentInTrustMatrixRow());
+		System.out.println();
+		printTrustMatrix(tm.getTrustMatrix());
+
+		
+		tm.swapColumn(1, 3);
+		System.out.println();
+		System.out.println();
+		System.out.println("Position in colums :");
+		printPositionOfAgents(tm.getPositionOfAgentInTrustMatrixColumn());
+		System.out.println("Position in rows :");
+		printPositionOfAgents(tm.getPositionOfAgentInTrustMatrixRow());
 		System.out.println();
 		printTrustMatrix(tm.getTrustMatrix());
 		
+		
+		tm.swapRow(1, 3);
+		System.out.println();
+		System.out.println();
+		System.out.println("Position in colums :");
+		printPositionOfAgents(tm.getPositionOfAgentInTrustMatrixColumn());
+		System.out.println("Position in rows :");
+		printPositionOfAgents(tm.getPositionOfAgentInTrustMatrixRow());
+		System.out.println();
+		printTrustMatrix(tm.getTrustMatrix());
+		
+		tm.swapRow(4, 3);
+		System.out.println();
+		System.out.println();
+		System.out.println("Position in colums :");
+		printPositionOfAgents(tm.getPositionOfAgentInTrustMatrixColumn());
+		System.out.println("Position in rows :");
+		printPositionOfAgents(tm.getPositionOfAgentInTrustMatrixRow());
+		System.out.println();
+		printTrustMatrix(tm.getTrustMatrix());
+
 	}
 
 	public void printTrustMatrix(int[][] trustMatrix) {
@@ -33,10 +77,24 @@ public class Application {
 				else 
 					System.out.print(",\t");
 			}
-			
+
 		}
-		
+
 	}
-	
-	
+
+	public void printPositionOfAgents(int[] positionOfAgents) {
+		System.out.print("[");
+		for (int i = 0; i < positionOfAgents.length; i++) {
+			System.out.print(positionOfAgents[i]);
+			if (i == positionOfAgents.length -1) 
+				System.out.println("]");
+			else 
+				System.out.print(",\t");
+		}
+
+	}
+
 }
+
+
+
