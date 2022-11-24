@@ -40,6 +40,12 @@ public class TropicalMatrix {
 		return positionOfAgentInTrustMatrixRow;
 	}
 	
+	/**
+	 * Vérifie si la valeur i et la valeur j sont différentes et comprises entre 0 et le nombre d'agents
+	 * @param i valeur i
+	 * @param j valeur j
+	 * @return true si i et j sont différentes et comprises entre 0 et le nombre d'agents, false sinon
+	 */
 	private boolean checkValidSwap(int i, int j) {
 		return !(i == j || i < 0 || j < 0 || i >= trustMatrix.length || j >= trustMatrix.length);
 	}
@@ -63,6 +69,11 @@ public class TropicalMatrix {
 		}
 	}
 	
+	/**
+	 * échange 2 colonnes dans la matrice de confiance et maintient le tableau permettant de savoir a quel agent correspond la colonne
+	 * @param i indice de la 1ere colonne à échanger
+	 * @param j indice de la 2e colonne à échanger
+	 */
 	public void swapColumn(int i, int j) {
 		if (checkValidSwap(i, j)) {
 			TropicalAtom[] columnI = new TropicalAtom[numberOfAgent];
