@@ -2,6 +2,7 @@ package main;
 
 import java.util.Iterator;
 
+import model_Tropical.TropicalAtom;
 import model_Tropical.TropicalMatrix;
 
 public class Application {
@@ -14,7 +15,7 @@ public class Application {
 		int numberOfAgent = 5;
 
 
-		TropicalMatrix tm = new TropicalMatrix(numberOfAgent);
+		TropicalMatrix tm = new TropicalMatrix(numberOfAgent, true);
 
 		System.out.println("Position in colums :");
 		printPositionOfAgents(tm.getPositionOfAgentInTrustMatrixColumn());
@@ -67,7 +68,7 @@ public class Application {
 
 	}
 
-	public void printTrustMatrix(int[][] trustMatrix) {
+	public void printTrustMatrix(TropicalAtom[][] trustMatrix) {
 		for (int i = 0; i < trustMatrix.length; i++) {
 			System.out.print("[");
 			for (int j = 0; j < trustMatrix[i].length; j++) {
