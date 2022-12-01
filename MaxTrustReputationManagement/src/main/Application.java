@@ -71,6 +71,20 @@ public class Application {
 		TropicalMatrix transposed = new TropicalMatrix(numberOfAgent, tm.getTranspose());
 		printTrustMatrix(transposed.getTrustMatrix());
 
+		// test tropical Addition et multiplication
+		TropicalAtom[][] trustMat = tm.getTrustMatrix();
+		System.out.println();
+		System.out.println("tropicalAddition");
+		System.out.println("[0][0] et [0][1] : "+trustMat[0][0].TropicalAddition(trustMat[0][1]).toString());
+		System.out.println("[0][1] et [0][0] : "+trustMat[0][1].TropicalAddition(trustMat[0][0]).toString());
+		System.out.println("[0][0] et [1][1] : "+trustMat[0][0].TropicalAddition(trustMat[1][1]).toString());
+		System.out.println();
+		System.out.println("tropicalMultiplication");
+		System.out.println("[0][0] et [0][1] : "+trustMat[0][0].TropicalMultiplication(trustMat[0][1]).toString());
+		System.out.println("[0][1] et [0][0] : "+trustMat[0][1].TropicalMultiplication(trustMat[0][0]).toString());
+		System.out.println("[0][0] et [1][1] : "+trustMat[0][0].TropicalMultiplication(trustMat[1][1]).toString());
+		System.out.println("[1][0] et [0][1] : "+trustMat[1][0].TropicalMultiplication(trustMat[0][1]).toString());
+		System.out.println("[0][2] et [0][3] : "+trustMat[0][2].TropicalMultiplication(trustMat[0][3]).toString());
 	}
 
 	public void printTrustMatrix(TropicalAtom[][] trustMatrix) {

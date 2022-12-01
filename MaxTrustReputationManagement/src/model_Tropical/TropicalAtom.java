@@ -21,6 +21,29 @@ public class TropicalAtom {
 		return value == null;
 	}
 
+	public TropicalAtom TropicalAddition(TropicalAtom atom){
+		if (isNegativeInfinite()) {
+			return atom;
+		}
+		if (atom.isNegativeInfinite()) {
+			return this;
+		}
+		if (atom.getValue()>this.value) {
+			return atom;
+		}
+		return this;
+	}
+
+	public TropicalAtom TropicalMultiplication(TropicalAtom atom) {
+		if (isNegativeInfinite()) {
+			return new TropicalAtom(atom.getValue());
+		}
+		if (atom.isNegativeInfinite()) {
+			return new TropicalAtom(this.value);
+		}
+		return new TropicalAtom(this.value + atom.getValue());
+	}
+
 	@Override
 	public String toString() {
 		if (isNegativeInfinite()) {
