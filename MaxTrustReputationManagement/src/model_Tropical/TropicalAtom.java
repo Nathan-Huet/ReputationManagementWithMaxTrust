@@ -21,7 +21,7 @@ public class TropicalAtom {
 		return value == null;
 	}
 
-	public TropicalAtom TropicalAddition(TropicalAtom atom){
+	public TropicalAtom tropicalAddition(TropicalAtom atom){
 		if (isNegativeInfinite()) {
 			return atom;
 		}
@@ -34,7 +34,7 @@ public class TropicalAtom {
 		return this;
 	}
 
-	public TropicalAtom TropicalMultiplication(TropicalAtom atom) {
+	public TropicalAtom tropicalMultiplication(TropicalAtom atom) {
 		if (isNegativeInfinite()) {
 			return new TropicalAtom(atom.getValue());
 		}
@@ -50,6 +50,13 @@ public class TropicalAtom {
 			return "-∞";
 		}
 		return value.toString();
+	}
+
+	public TropicalAtom substraction(TropicalAtom tropicalAtom) {
+		if (isNegativeInfinite() || tropicalAtom.isNegativeInfinite()) {
+			return new TropicalAtom();
+		}
+		return new TropicalAtom(value - tropicalAtom.getValue());
 	}
 	
 	

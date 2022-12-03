@@ -1,5 +1,7 @@
 package model_Tropical;
 
+import java.util.ArrayList;
+
 public class TropicalMatrix {
 	private int numberOfAgent;
 	private TropicalAtom[][] trustMatrix;
@@ -93,6 +95,10 @@ public class TropicalMatrix {
 		}
 	}
 	
+	/**
+	 * retourne la transposée de la matrice de confiance
+	 * @return transposée de la matrice de confiance
+	 */
 	public TropicalAtom[][] getTranspose(){
 		TropicalAtom[][] transposedMatrix = new TropicalAtom[numberOfAgent][numberOfAgent];
 		for (int i = 0; i < trustMatrix.length; i++) {
@@ -101,5 +107,85 @@ public class TropicalMatrix {
 			}
 		}
 		return transposedMatrix;
+	}
+	
+	/**
+	 * retourne le résultat d'une multiplication de matrice par un vecteur
+	 * @param matrix matrice
+	 * @param vector vecteur
+	 * @return résultat d'une multiplication de matrice par un vecteur
+	 */
+	public TropicalAtom[] tropicalMatrixMultiplicationByVector(TropicalAtom[][] matrix, TropicalAtom[] vector) {
+		TropicalAtom[] result = new TropicalAtom[vector.length];
+		for (int i = 0; i < matrix.length; i++) {
+			for (int j = 0; j < matrix[i].length; j++) {
+				result[i] = result[i].tropicalAddition(matrix[i][j].tropicalMultiplication(vector[i]));
+			}
+		}
+		return result;
+	}
+	
+	/**
+	 * retourne le résultat d'une multiplication d'un vecteur par un entier
+	 * @param vector vecteur
+	 * @param integer entier
+	 * @return résultat d'une multiplication d'un vecteur par un entier
+	 */
+	public TropicalAtom[] tropicalVectorMultiplicationByInteger(TropicalAtom[] vector, int integer) {
+		TropicalAtom[] result = new TropicalAtom[vector.length];
+		for (int i = 0; i < vector.length; i++) {
+			result[i] = vector[i].tropicalMultiplication(new TropicalAtom(integer));
+		}
+		return result;
+	}
+	
+	
+	/**
+	 * retourne le résultat de la soustraction entre 2 vecteurs
+	 * @param vectorLeft vecteur gauche
+	 * @param vectorRight vecteur droit
+	 * @return résultat de la soustraction entre les vecteurs
+	 */
+	public TropicalAtom[] substractionOfVectorByVector(TropicalAtom[] vectorLeft, TropicalAtom[] vectorRight) {
+		TropicalAtom[] result = new TropicalAtom[vectorLeft.length];
+		for (int i = 0; i < result.length; i++) {
+			result[i] = vectorLeft[i].substraction(vectorRight[i]);
+		}
+		return result;
+	}
+	
+	
+	/**
+	 * calcule la norme d'un vecteur
+	 * @param vector vecteur
+	 * @return norme
+	 */
+	public double vectorNorm(TropicalAtom[] vector) {
+		double result = 0;
+		for (int i = 0; i < vector.length; i++) {
+			result += vector[i].getValue() * vector[i].getValue();
+		}
+		
+		return Math.sqrt(result);
+	}
+	
+	public void maxPower(TropicalAtom[] r) {
+		int p = 0;
+		float c = -1;
+		int q = -1;
+		double epsilon = 0.5;
+		ArrayList<TropicalAtom[]> listOfEigenVector = new ArrayList<>();
+		listOfEigenVector.add(r);
+		do {
+			listOfEigenVector.add(tropicalMatrixMultiplicationByVector(getTranspose(), listOfEigenVector.get(p)));
+			p++;
+		}while(vectorNorm(substractionOfVectorByVector(listOfEigenVector.get(p), listOfEigenVector.get(p-1))) < epsilon);
+		double lambda = c / (p-q);
+		
+		TropicalAtom v = new TropicalAtom();
+		for (int i = 1; i < p-q; i++) {
+			listOfEigenVector.get(q+i-1);
+			v = v.tropicalAddition(v);
+		}
 	}
 }
