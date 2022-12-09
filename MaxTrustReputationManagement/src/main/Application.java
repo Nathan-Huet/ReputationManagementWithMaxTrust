@@ -66,11 +66,13 @@ public class Application {
 		System.out.println();
 		printTrustMatrix(tm.getTrustMatrix());
 		*/
+		/*
 		printTrustMatrix(tm.getTrustMatrix());
 		System.out.println();
 		TropicalMatrix transposed = new TropicalMatrix(numberOfAgent, tm.getTranspose());
 		printTrustMatrix(transposed.getTrustMatrix());
-
+		*/
+		/*
 		// test tropical Addition et multiplication
 		TropicalAtom[][] trustMat = tm.getTrustMatrix();
 		System.out.println();
@@ -85,6 +87,12 @@ public class Application {
 		System.out.println("[0][0] et [1][1] : "+trustMat[0][0].tropicalMultiplication(trustMat[1][1]).toString());
 		System.out.println("[1][0] et [0][1] : "+trustMat[1][0].tropicalMultiplication(trustMat[0][1]).toString());
 		System.out.println("[0][2] et [0][3] : "+trustMat[0][2].tropicalMultiplication(trustMat[0][3]).toString());
+		*/
+		TropicalAtom[] r = new TropicalAtom[numberOfAgent];
+		for (int i = 0; i < numberOfAgent; i++) {
+			r[i] = new TropicalAtom(i);
+		}
+		tm.maxPower(r);
 	}
 
 	public void printTrustMatrix(TropicalAtom[][] trustMatrix) {

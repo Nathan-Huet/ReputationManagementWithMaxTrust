@@ -1,6 +1,7 @@
 package model_Tropical;
 
 import java.util.ArrayList;
+import java.util.function.Function;
 
 public class TropicalMatrix {
 	private int numberOfAgent;
@@ -156,11 +157,11 @@ public class TropicalMatrix {
 	
 	
 	/**
-	 * calcule la norme d'un vecteur
+	 * calcule la norme d'un vecteur tropical
 	 * @param vector vecteur
 	 * @return norme
 	 */
-	public double vectorNorm(TropicalAtom[] vector) {
+	public double tropicalVectorNorm(TropicalAtom[] vector) {
 		double result = 0;
 		for (int i = 0; i < vector.length; i++) {
 			result += vector[i].getValue() * vector[i].getValue();
@@ -168,24 +169,58 @@ public class TropicalMatrix {
 		
 		return Math.sqrt(result);
 	}
-	
+
+	/**
+	 * calcule la norme d'un vecteur
+	 * @param vector vecteur
+	 * @return norme
+	 */
+	public double vectorNorm(Float[] vector) {
+		double result = 0;
+		for (int i = 0; i < vector.length; i++) {
+			result += vector[i] * vector[i];
+		}
+		
+		return Math.sqrt(result);
+	}
+
+	//ne marche pas
 	public void maxPower(TropicalAtom[] r) {
 		int p = 0;
-		float c = -1;
+		double c = 0.5;
 		int q = -1;
-		double epsilon = 0.5;
 		ArrayList<TropicalAtom[]> listOfEigenVector = new ArrayList<>();
 		listOfEigenVector.add(r);
+
+		boolean isRunnable = true;
 		do {
 			listOfEigenVector.add(tropicalMatrixMultiplicationByVector(getTranspose(), listOfEigenVector.get(p)));
 			p++;
-		}while(vectorNorm(substractionOfVectorByVector(listOfEigenVector.get(p), listOfEigenVector.get(p-1))) < epsilon);
+
+			for (int i = 0; i < p; i++) {
+				if (tropicalVectorNorm(listOfEigenVector.get(i))==(c+listOfEigenVector.get(p))) {
+					isRunnable = false;
+				}
+			}
+		}while(isRunnable);
+		// tropicalVectorNorm(substractionOfVectorByVector(listOfEigenVector.get(p), listOfEigenVector.get(p-1))) < epsilon
 		double lambda = c / (p-q);
-		
-		TropicalAtom v = new TropicalAtom();
+
+		Float[] eigenVector = new Float[numberOfAgent];
 		for (int i = 1; i < p-q; i++) {
-			listOfEigenVector.get(q+i-1);
-			v = v.tropicalAddition(v);
+			Float[] eigenVectorTmp = new Float[numberOfAgent];
+			for (int j = 0; j < p-q-i; j++) {
+				lambda *= lambda;
+			}
+			TropicalAtom[] vqi = listOfEigenVector.get(q+i-1);
+			for (int j = 0; j < numberOfAgent; j++) {
+				eigenVectorTmp[j] = (float) (vqi[j].getValue()+lambda);
+			}
+
+			if (vectorNorm(eigenVectorTmp) > vectorNorm(eigenVector)) {
+				eigenVector = eigenVectorTmp;
+			}
 		}
+		System.out.println(eigenVector);
 	}
 }
