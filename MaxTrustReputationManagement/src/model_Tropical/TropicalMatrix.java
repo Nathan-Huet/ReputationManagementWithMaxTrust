@@ -169,6 +169,7 @@ public class TropicalMatrix {
 		return Math.sqrt(result);
 	}
 	
+	
 	public void maxPower(TropicalAtom[] r) {
 		int p = 0;
 		float c = -1;
