@@ -9,8 +9,9 @@ import agent.Agent;
 public interface AgentFactory {
 	/**
 	 * Créé nouvel Agent
-	 * @param name le nom de l'Agent
+	 * @param id identifiant de l'Agent
+	 * @param numberOfAgents nombre d'Agents
 	 * @return un nouvel Agent
 	 */
-	public Agent getAgent(String name);
+	public Agent getAgent(int numberOfAgents);
 }

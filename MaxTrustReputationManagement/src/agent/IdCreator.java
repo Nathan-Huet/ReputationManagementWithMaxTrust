@@ -27,10 +27,18 @@ public class IdCreator {
 	 * retourne un nouvel identifiant pour un Agent
 	 * @return nouvel identifiant pour un Agent
 	 */
-	public String getAgentId() {
-		String id = "A";
+	public int getAgentId() {
 		int num = idCreator.numberOfAgents;
 		numberOfAgents ++;
-		return id + num;
+		return num;
+	}
+	
+	/**
+	 * retourne le nombre d'Agents dans le system
+	 * @return le nombre total d'Agent
+	 */
+	public int getNumberOfAgent() {
+		int num = idCreator.numberOfAgents;
+		return num + 1;
 	}
 }

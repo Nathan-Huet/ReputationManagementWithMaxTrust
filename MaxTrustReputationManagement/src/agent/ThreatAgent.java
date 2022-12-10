@@ -11,12 +11,13 @@ import strategy.Strategy;
 public class ThreatAgent extends Agent{
 
 	/**
-	 * 
-	 * @param name nom de l'Agent
+	 * Construction d'un Agent avec une Strategy donnée
+	 * @param id identifiant de l'Agent
+	 * @param numberOfAgents nombre d'Agents
 	 * @param strategy Strategy utilisée 
 	 */
-	public ThreatAgent(String name, Strategy strategy) {
-		super(name);
+	public ThreatAgent(int id, int numberOfAgents, Strategy strategy) {
+		super(id, numberOfAgents);
 		this.agentStrategy = strategy;
 	}
 

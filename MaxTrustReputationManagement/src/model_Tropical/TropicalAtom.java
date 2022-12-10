@@ -8,7 +8,7 @@ public class TropicalAtom {
 	public TropicalAtom(Integer value) {
 		this.value = value;
 	}
-
+	
 	public Integer getValue() {
 		return value;
 	}

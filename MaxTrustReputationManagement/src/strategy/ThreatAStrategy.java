@@ -1,7 +1,7 @@
 package strategy;
 
 /**
- * Cette classe est utilisée pour modéliser la Strategy d'un Agent prduisant toujours des résultats négatifs
+ * Cette classe est utilisée pour modéliser la Strategy d'un Agent produisant toujours des résultats négatifs
  *
  */
 public class ThreatAStrategy implements Strategy{

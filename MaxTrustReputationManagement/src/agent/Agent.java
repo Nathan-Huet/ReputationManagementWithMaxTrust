@@ -1,5 +1,8 @@
 package agent;
 
+import java.util.Arrays;
+
+import model_Tropical.TropicalAtom;
 import strategy.Strategy;
 
 /**
@@ -10,14 +13,32 @@ import strategy.Strategy;
 public abstract class Agent {
 
 	protected Strategy agentStrategy;
-	protected String name;
+	protected int id;
+	protected TropicalAtom[] trustVector;
+	protected int[] numberOfSuccessfulInteractions;
+	protected int[] numberOfUnsuccessfulInteractions;
+	
 	
 	/**
-	 * 
-	 * @param name nom de l'Agent
+	 * Construction par défaut d'un Agent
+	 * @param id identifiant de l'Agent
+	 * @param numberOfAgents nombre d'Agents
 	 */
-	public Agent(String name) {
-		this.name = name;
+	public Agent(int id, int numberOfAgents ) {
+		this.id = id;
+		this.trustVector = new TropicalAtom[numberOfAgents];
+		this.numberOfSuccessfulInteractions = new int[numberOfAgents];
+		this.numberOfUnsuccessfulInteractions = new int[numberOfAgents];
+		
+		for (int i = 0; i < trustVector.length; i++) {
+			if (i == id) {
+				trustVector[i] = new TropicalAtom(0);
+			}else {
+				trustVector[i] = new TropicalAtom();
+			}
+			numberOfSuccessfulInteractions[i] = 0;
+			numberOfUnsuccessfulInteractions[i] = 0;
+		}
 	}
 	
 	/**
@@ -27,6 +48,30 @@ public abstract class Agent {
 	 * @return true si la Strategy de l'Agent évalue le résultat comme positif et false sinon
 	 */
 	public boolean interactsWith(Agent other) {
-		return agentStrategy.evaluateResult(other.agentStrategy.getInteractionResult());
+		boolean result = agentStrategy.evaluateResult(other.agentStrategy.getInteractionResult());
+		if (result) {
+			numberOfSuccessfulInteractions[other.id] ++;
+		}else {
+			numberOfUnsuccessfulInteractions[other.id] ++;
+		}
+		this.trustVector[other.id] = new TropicalAtom(numberOfSuccessfulInteractions[other.id] - numberOfUnsuccessfulInteractions[other.id]);
+		return result;
+	}
+	
+	/**
+	 * Retourne le vecteur de confiance de l'Agent
+	 * @return le vecteur de confiance de l'Agent
+	 */
+	public TropicalAtom[] getTrustVector() {
+		return trustVector;
+	}
+	
+
+
+	@Override
+	public String toString() {
+		return "A" + id + " " + Arrays.toString(trustVector);
 	}	
+	
+	
 }

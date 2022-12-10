@@ -1,6 +1,7 @@
 package factory;
 
 import agent.Agent;
+import agent.IdCreator;
 import agent.ThreatAgent;
 import strategy.ThreatAStrategy;
 
@@ -10,7 +11,7 @@ import strategy.ThreatAStrategy;
 public class ThreatAFactory implements AgentFactory{
 
 	@Override
-	public Agent getAgent(String name) {
-		return new ThreatAgent(name, new ThreatAStrategy());
+	public Agent getAgent(int numberOfAgents) {
+		return new ThreatAgent(IdCreator.getIdCreator().getAgentId(), numberOfAgents, new ThreatAStrategy());
 	}
 }
