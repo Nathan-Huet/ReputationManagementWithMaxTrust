@@ -1,5 +1,7 @@
 package strategy;
 
+import agent.Agent;
+
 /**
  * Cette interface est utilisée pour modéliser la Strategy d'un Agent et sa manière d'évaluer ses pairs
  *
@@ -14,9 +16,8 @@ public interface Strategy {
 
 	/**
 	 * évaluation du résultat selon le point de vue de la Strategy
-	 * @param interactionResult résultat d'une interaction true si l'interaction a produit un bon résultat et false sinon
+	 * @param other un Agent avec qui la Strategy interagit
 	 * @return true si la Strategy est satisfaite du résultat et false sinon
 	 */
-	public boolean evaluateResult(boolean interactionResult);
-
+	public abstract boolean evaluateResult(Agent other);
 }

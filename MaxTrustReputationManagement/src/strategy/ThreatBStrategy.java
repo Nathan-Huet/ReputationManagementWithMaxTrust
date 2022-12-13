@@ -2,22 +2,30 @@ package strategy;
 
 import java.util.LinkedList;
 
+import agent.Agent;
 import agent.ThreatAgent;
 
 /**
  * Cette classe est utilisée pour modéliser la Strategy d'un Agent produisant toujours des résultats négatifs
- * appartenant à un collectif malveillant (dans les faits la méthode evaluateResult n'est pas utilisée car 
- * les Agents du collectif s'évaluent positivement entre eux et évaluent les autres négativement)
+ * appartenant à un collectif malveillant 
  */
-public class ThreatBStrategy implements Strategy{
-	
+public class ThreatBStrategy extends MaliciousCollectiveStrategy{
+		
 	@Override
 	public boolean getInteractionResult() {
 		return false;
 	}
 
 	@Override
-	public boolean evaluateResult(boolean interactionResult) {
+	public boolean evaluateResult(Agent other) {
+		for (ThreatAgent i : maliciousCollective) {
+			if (i.getId() == other.getId()) {
+				return true;
+			}
+		}
 		return false;
 	}
+
+	
+	
 }

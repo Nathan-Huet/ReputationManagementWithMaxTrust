@@ -3,6 +3,7 @@ package agent;
 import java.util.LinkedList;
 
 import model_Tropical.TropicalAtom;
+import strategy.MaliciousCollectiveStrategy;
 import strategy.Strategy;
 
 /**
@@ -12,7 +13,6 @@ import strategy.Strategy;
  * mais on peut également imaginer que la Strategy qui le soutienne
  */
 public class MaliciousCollectiveAgent extends ThreatAgent {
-	private LinkedList<MaliciousCollectiveAgent> maliciousCollective;
 
 	/**
 	 * Construction d'un Agent appartenant à un collectif malveillant
@@ -20,7 +20,7 @@ public class MaliciousCollectiveAgent extends ThreatAgent {
 	 * @param numberOfAgents nombre d'Agents
 	 * @param strategy Strategy utilisée
 	 */
-	public MaliciousCollectiveAgent(int id, int numberOfAgents, Strategy strategy) {
+	public MaliciousCollectiveAgent(int id, int numberOfAgents, MaliciousCollectiveStrategy strategy) {
 		super(id, numberOfAgents, strategy);
 	}
 
@@ -29,7 +29,7 @@ public class MaliciousCollectiveAgent extends ThreatAgent {
 	 * @param maliciousCollective le collectif
 	 */
 	public void setCollective(LinkedList<MaliciousCollectiveAgent> maliciousCollective) {
-		this.maliciousCollective = maliciousCollective;
+		((MaliciousCollectiveStrategy)this.agentStrategy).setCollective(maliciousCollective);
 	}
 	
 	/**
@@ -40,12 +40,8 @@ public class MaliciousCollectiveAgent extends ThreatAgent {
 	 */
 	@Override
 	public boolean interactsWith(Agent other) {
-		boolean result = false;
-		for (ThreatAgent i : maliciousCollective) {
-			if (i.id == other.id) {
-				result = true;
-			}
-		}
+		boolean result = this.agentStrategy.evaluateResult(other);
+		
 		if (result) {
 			numberOfSuccessfulInteractions[other.id] ++;
 		}else {

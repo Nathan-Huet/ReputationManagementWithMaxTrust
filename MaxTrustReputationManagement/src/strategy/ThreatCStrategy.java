@@ -3,16 +3,16 @@ package strategy;
 import java.util.LinkedList;
 import java.util.Random;
 
+import agent.Agent;
 import agent.ThreatAgent;
 
 /**
  * Cette classe est utilisée pour modéliser la Strategy d'un Agent produisant
  * un pourcentage de résultats positifs pour contrebalancer les résultats négatifs qu'il produit
- * appartenant à un collectif malveillant (dans les faits la méthode evaluateResult n'est pas utilisée 
- * car les Agents du collectif s'évaluent positivement entre eux et évaluent les autres négativement)
+ * appartenant à un collectif malveillant 
  */
-public class ThreatCStrategy implements Strategy{
-	private double probabilityOfPositiveResult;
+public class ThreatCStrategy extends MaliciousCollectiveStrategy{
+	protected double probabilityOfPositiveResult;
 	
 	/**
 	 * Construction d'une Strategy malveillante produisant un pourcentage de résultats positifs
@@ -29,7 +29,14 @@ public class ThreatCStrategy implements Strategy{
 	}
 
 	@Override
-	public boolean evaluateResult(boolean interactionResult) {
+	public boolean evaluateResult(Agent other) {
+		for (ThreatAgent i : maliciousCollective) {
+			if (i.getId() == other.getId()) {
+				return true;
+			}
+		}
 		return false;
 	}
+	
+	
 }

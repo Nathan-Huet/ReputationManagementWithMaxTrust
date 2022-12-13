@@ -18,4 +18,5 @@ public class GoodAgent extends Agent{
 		this.agentStrategy = new GoodAgentStrategy();
 	}
 
+	
 }

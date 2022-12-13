@@ -1,5 +1,7 @@
 package strategy;
 
+import agent.Agent;
+
 /**
  * Cette classe est utilisée pour modéliser la Strategy d'un Agent produisant toujours des résultats négatifs
  *
@@ -12,7 +14,7 @@ public class ThreatAStrategy implements Strategy{
 	}
 
 	@Override
-	public boolean evaluateResult(boolean interactionResult) {
-		return !interactionResult;
+	public boolean evaluateResult(Agent other) {
+		return !other.getInteractionResult();
 	}
 }

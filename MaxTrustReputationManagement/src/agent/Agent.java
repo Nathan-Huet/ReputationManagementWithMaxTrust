@@ -41,6 +41,16 @@ public abstract class Agent {
 		}
 	}
 	
+	
+	/**
+	 * retourne l'identifiant de l'agent
+	 * @return identifiant de l'agent
+	 */
+	public int getId() {
+		return id;
+	}
+
+	
 	/**
 	 * méthode évaluant le résultat d'une interaction avec un autre Agent 
 	 * la façon d'évaluer si le résultat est satisfaisant dépend de la Strategy de l'Agent courant
@@ -48,7 +58,7 @@ public abstract class Agent {
 	 * @return true si la Strategy de l'Agent évalue le résultat comme positif et false sinon
 	 */
 	public boolean interactsWith(Agent other) {
-		boolean result = agentStrategy.evaluateResult(other.agentStrategy.getInteractionResult());
+		boolean result = agentStrategy.evaluateResult(other);
 		if (result) {
 			numberOfSuccessfulInteractions[other.id] ++;
 		}else {
@@ -59,6 +69,14 @@ public abstract class Agent {
 	}
 	
 	/**
+	 * retourne le résultat d'une interaction selon la Strategy de l'Agent
+	 * @return résultat d'une interaction selon la Strategy de l'Agent
+	 */
+	public boolean getInteractionResult() {
+		return this.agentStrategy.getInteractionResult();
+	}
+	
+	/**
 	 * Retourne le vecteur de confiance de l'Agent
 	 * @return le vecteur de confiance de l'Agent
 	 */
@@ -66,8 +84,6 @@ public abstract class Agent {
 		return trustVector;
 	}
 	
-
-
 	@Override
 	public String toString() {
 		return "A" + id + " " + Arrays.toString(trustVector);

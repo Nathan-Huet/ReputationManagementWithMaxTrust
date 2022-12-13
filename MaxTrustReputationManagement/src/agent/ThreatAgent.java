@@ -21,5 +21,4 @@ public class ThreatAgent extends Agent{
 		this.agentStrategy = strategy;
 	}
 
-
 }

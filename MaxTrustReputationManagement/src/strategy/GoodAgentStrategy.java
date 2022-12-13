@@ -2,6 +2,8 @@ package strategy;
 
 import java.util.Random;
 
+import agent.Agent;
+
 /**
  * Cette classe est utilisée pour modéliser la Strategy d'un Agent qui fait de son mieux pour produire des résultats positifs 
  *
@@ -16,8 +18,9 @@ public class GoodAgentStrategy implements Strategy {
 	}
 
 	@Override
-	public boolean evaluateResult(boolean interactionResult) {
-		return interactionResult;
+	public boolean evaluateResult(Agent other) {
+		return other.getInteractionResult();
 	}
+
 	
 }
