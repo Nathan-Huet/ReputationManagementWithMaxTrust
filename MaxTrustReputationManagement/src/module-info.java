@@ -1,9 +1,0 @@
-/**
- * 
- */
-/**
- * @author nathan
- *
- */
-module MaxTrustReputationManagement {
-}
