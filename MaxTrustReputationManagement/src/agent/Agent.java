@@ -86,7 +86,7 @@ public abstract class Agent {
 	
 	@Override
 	public String toString() {
-		return "A" + id + " " + Arrays.toString(trustVector);
+		return "A" + getId() + " " + Arrays.toString(trustVector);
 	}	
 	
 	

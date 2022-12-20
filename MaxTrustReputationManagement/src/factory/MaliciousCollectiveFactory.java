@@ -16,17 +16,15 @@ public abstract class MaliciousCollectiveFactory implements AgentFactory{
 	 * @param numberInCollective le nombre d'Agents dans le collectif à créer
 	 * @return le collectif d'Agent nouvellement créé
 	 */
-	public LinkedList<Agent> getCollective(int numberOfAgents, int numberInCollective) {
+	public LinkedList<MaliciousCollectiveAgent> getCollective(int numberOfAgents, int numberInCollective) {
 		LinkedList<MaliciousCollectiveAgent> collective = new LinkedList<>();
-		LinkedList<Agent> collectiveOfAgent = new LinkedList<>();
 		for (int i = 0; i < numberInCollective; i++) {
 			MaliciousCollectiveAgent agent = this.getAgent(numberOfAgents);
 			collective.add(agent);
-			collectiveOfAgent.add(agent);
 		}
 		for (MaliciousCollectiveAgent agent : collective) {
 			agent.setCollective(collective);
 		}
-		return collectiveOfAgent;
+		return collective;
 	}
 }

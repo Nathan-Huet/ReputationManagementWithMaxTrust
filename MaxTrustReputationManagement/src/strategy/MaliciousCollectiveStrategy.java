@@ -2,9 +2,7 @@ package strategy;
 
 import java.util.LinkedList;
 
-import agent.Agent;
 import agent.MaliciousCollectiveAgent;
-import agent.ThreatAgent;
 
 public abstract class MaliciousCollectiveStrategy implements Strategy {	
 	protected LinkedList<MaliciousCollectiveAgent> maliciousCollective = null;

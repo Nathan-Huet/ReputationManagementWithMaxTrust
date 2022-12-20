@@ -4,7 +4,6 @@ import java.util.LinkedList;
 
 import model_Tropical.TropicalAtom;
 import strategy.MaliciousCollectiveStrategy;
-import strategy.Strategy;
 
 /**
  * Une instance de cette classe est utilisée pour modéliser un Agent appartenant à un collectif (supposé malveillant)

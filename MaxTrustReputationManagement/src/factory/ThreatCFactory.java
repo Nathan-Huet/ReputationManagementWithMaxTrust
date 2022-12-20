@@ -1,11 +1,7 @@
 package factory;
 
-import java.util.LinkedList;
-
-import agent.Agent;
 import agent.IdCreator;
 import agent.MaliciousCollectiveAgent;
-import agent.ThreatAgent;
 import strategy.ThreatCStrategy;
 
 /**

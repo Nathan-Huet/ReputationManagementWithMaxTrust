@@ -1,6 +1,5 @@
 package strategy;
 
-import java.util.LinkedList;
 import java.util.Random;
 
 import agent.Agent;

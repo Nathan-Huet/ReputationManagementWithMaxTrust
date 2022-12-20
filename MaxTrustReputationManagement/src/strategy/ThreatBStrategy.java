@@ -1,7 +1,5 @@
 package strategy;
 
-import java.util.LinkedList;
-
 import agent.Agent;
 import agent.ThreatAgent;
 

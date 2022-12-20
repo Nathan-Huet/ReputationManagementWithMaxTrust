@@ -1,7 +1,5 @@
 package main;
 
-import java.util.Iterator;
-
 import model_Tropical.TropicalAtom;
 import model_Tropical.TropicalMatrix;
 
