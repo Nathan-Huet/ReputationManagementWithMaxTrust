@@ -1,5 +1,7 @@
 package model_Tropical;
 
+import java.util.Objects;
+
 public class TropicalAtom {
 	private Integer value = null;
 	
@@ -52,12 +54,33 @@ public class TropicalAtom {
 		return value.toString();
 	}
 
+	@Override
+	public int hashCode() {
+		return Objects.hash(value);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		//TODO voir si equals ne cause pas de problèmes
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		TropicalAtom other = (TropicalAtom) obj;
+		return Objects.equals(value, other.value);
+	}
+	
+	
+
+	/*
 	public TropicalAtom substraction(TropicalAtom tropicalAtom) {
 		if (isNegativeInfinite() || tropicalAtom.isNegativeInfinite()) {
 			return new TropicalAtom();
 		}
 		return new TropicalAtom(value - tropicalAtom.getValue());
 	}
-	
+	*/
 	
 }

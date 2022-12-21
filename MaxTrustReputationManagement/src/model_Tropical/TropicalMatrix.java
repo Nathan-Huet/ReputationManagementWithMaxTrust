@@ -1,28 +1,33 @@
 package model_Tropical;
 
 import java.util.ArrayList;
+import java.util.Iterator;
+
+import main.Application;
 
 public class TropicalMatrix {
 	private int numberOfAgent;
 	private TropicalAtom[][] trustMatrix;
 	private int[] positionOfAgentInTrustMatrixColumn;
 	private int[] positionOfAgentInTrustMatrixRow;
+	private int convergence;
 	
-	public TropicalMatrix(int numberOfAgent) {
+	public TropicalMatrix(int numberOfAgent, int convergence) {
 		this.numberOfAgent = numberOfAgent;
+		this.convergence = convergence;
 		this.positionOfAgentInTrustMatrixColumn = new int[numberOfAgent];
 		this.positionOfAgentInTrustMatrixRow = new int[numberOfAgent];
 		this.trustMatrix = new TropicalAtom[numberOfAgent][numberOfAgent];
 		
 	}
 	
-	public TropicalMatrix(int numberOfAgent, TropicalAtom[][] trustMatrix) {
-		this(numberOfAgent);
+	public TropicalMatrix(int numberOfAgent, int convergence, TropicalAtom[][] trustMatrix) {
+		this(numberOfAgent, convergence);
 		this.trustMatrix = trustMatrix;		
 	}
 	
-	public TropicalMatrix(int numberOfAgent, boolean initArbitraryTrustMatrix) {
-		this(numberOfAgent);
+	public TropicalMatrix(int numberOfAgent,int convergence, boolean initArbitraryTrustMatrix) {
+		this(numberOfAgent, convergence);
 		for (int i = 0; i < numberOfAgent; i++) {
 			positionOfAgentInTrustMatrixColumn[i] = i;
 			positionOfAgentInTrustMatrixRow[i] = i;
@@ -117,6 +122,9 @@ public class TropicalMatrix {
 	 */
 	public TropicalAtom[] tropicalMatrixMultiplicationByVector(TropicalAtom[][] matrix, TropicalAtom[] vector) {
 		TropicalAtom[] result = new TropicalAtom[vector.length];
+		for (int i = 0; i < result.length; i++) {
+			result[i] = new TropicalAtom();
+		}
 		for (int i = 0; i < matrix.length; i++) {
 			for (int j = 0; j < matrix[i].length; j++) {
 				result[i] = result[i].tropicalAddition(matrix[i][j].tropicalMultiplication(vector[i]));
@@ -133,6 +141,9 @@ public class TropicalMatrix {
 	 */
 	public TropicalAtom[] tropicalVectorMultiplicationByInteger(TropicalAtom[] vector, int integer) {
 		TropicalAtom[] result = new TropicalAtom[vector.length];
+		for (int i = 0; i < result.length; i++) {
+			result[i] = new TropicalAtom();
+		}
 		for (int i = 0; i < vector.length; i++) {
 			result[i] = vector[i].tropicalMultiplication(new TropicalAtom(integer));
 		}
@@ -146,6 +157,7 @@ public class TropicalMatrix {
 	 * @param vectorRight vecteur droit
 	 * @return résultat de la soustraction entre les vecteurs
 	 */
+	/*
 	public TropicalAtom[] substractionOfVectorByVector(TropicalAtom[] vectorLeft, TropicalAtom[] vectorRight) {
 		TropicalAtom[] result = new TropicalAtom[vectorLeft.length];
 		for (int i = 0; i < result.length; i++) {
@@ -153,13 +165,14 @@ public class TropicalMatrix {
 		}
 		return result;
 	}
-	
+	*/
 	
 	/**
 	 * calcule la norme d'un vecteur
 	 * @param vector vecteur
 	 * @return norme
 	 */
+	/*
 	public double vectorNorm(TropicalAtom[] vector) {
 		double result = 0;
 		for (int i = 0; i < vector.length; i++) {
@@ -168,25 +181,55 @@ public class TropicalMatrix {
 		
 		return Math.sqrt(result);
 	}
+	*/
 	
-	
-	public void maxPower(TropicalAtom[] r) {
+	public double maxPower(TropicalAtom[] r) {
 		int p = 0;
-		float c = -1;
+		TropicalAtom convergenceAtom = new TropicalAtom(convergence);
 		int q = -1;
-		double epsilon = 0.5;
 		ArrayList<TropicalAtom[]> listOfEigenVector = new ArrayList<>();
 		listOfEigenVector.add(r);
+		
+		Application.printTrustVector(r);
+		
+		boolean conditionContinue = true;
 		do {
 			listOfEigenVector.add(tropicalMatrixMultiplicationByVector(getTranspose(), listOfEigenVector.get(p)));
 			p++;
-		}while(vectorNorm(substractionOfVectorByVector(listOfEigenVector.get(p), listOfEigenVector.get(p-1))) < epsilon);
-		double lambda = c / (p-q);
-		
-		TropicalAtom v = new TropicalAtom();
+			TropicalAtom[] vp = listOfEigenVector.get(p);
+			Application.printTrustVector(vp);
+			
+			for (int i = 0; i < p; i++) {
+				TropicalAtom[] vi = listOfEigenVector.get(i);
+				int index = 0;
+				System.out.println();
+				System.out.println(vi[index+2].tropicalMultiplication(convergenceAtom));
+				System.out.println(vp[index+2]);
+				
+				System.out.println(vi[index+2].tropicalMultiplication(convergenceAtom).equals(vp[index+2])); 
+				if (vi[index+2].tropicalMultiplication(convergenceAtom).equals(vp[index+2])) {
+					System.exit(0);
+				}
+				System.out.println();
+				while (vi[index].tropicalMultiplication(convergenceAtom).equals(vp[index]) && index < vi.length) {					
+					index++;
+					if (index == vi.length) {
+						conditionContinue = false;
+						q = i;
+					}
+				}
+				if (q >= 0) {
+					break;
+				}
+			}
+		}while(conditionContinue /*&& p < 2*/);
+		double lambda = convergence / (p-q);
+		/*TropicalAtom v = new TropicalAtom();
 		for (int i = 1; i < p-q; i++) {
 			listOfEigenVector.get(q+i-1);
 			v = v.tropicalAddition(v);
-		}
+		}*/
+		
+		return lambda;
 	}
 }

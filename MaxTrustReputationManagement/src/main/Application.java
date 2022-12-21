@@ -11,9 +11,9 @@ public class Application {
 
 	public void launch() {
 		int numberOfAgent = 5;
-
-
-		TropicalMatrix tm = new TropicalMatrix(numberOfAgent, true);
+		
+		int convergence = 1;
+		TropicalMatrix tm = new TropicalMatrix(numberOfAgent, convergence, true);
 
 		/*System.out.println("Position in colums :");
 		printPositionOfAgents(tm.getPositionOfAgentInTrustMatrixColumn());
@@ -66,7 +66,7 @@ public class Application {
 		*/
 		printTrustMatrix(tm.getTrustMatrix());
 		System.out.println();
-		TropicalMatrix transposed = new TropicalMatrix(numberOfAgent, tm.getTranspose());
+		TropicalMatrix transposed = new TropicalMatrix(numberOfAgent, convergence, tm.getTranspose());
 		printTrustMatrix(transposed.getTrustMatrix());
 
 		// test tropical Addition et multiplication
@@ -99,6 +99,20 @@ public class Application {
 		}
 
 	}
+	
+	public static void printTrustVector(TropicalAtom[] trustVector) {
+		System.out.print("[");
+		for (int i = 0; i < trustVector.length; i++) {
+			System.out.print(trustVector[i] );
+			if (i == trustVector.length -1) 
+				System.out.println("]");
+			else 
+				System.out.print(",\t");
+		}
+
+	}
+
+
 
 	public void printPositionOfAgents(int[] positionOfAgents) {
 		System.out.print("[");

@@ -15,11 +15,12 @@ public class TestFactory {
 
 	public static void main(String[] args) {
 		TestFactory tf = new TestFactory();
-		//tf.launch1(3);
-		//tf.launch2(3);
-		//tf.launch3(3);
-		//tf.launch4(3);
-		tf.launch5(3);
+		int number = 3*5;
+		tf.launch1(number);
+		tf.launch2(number);
+		tf.launch3(number);
+		tf.launch4(number);
+		tf.launch5(number);
 	}
 
 	public void launch1(int numberOfAgents) {
