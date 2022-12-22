@@ -3,19 +3,23 @@ package model_Tropical;
 import java.util.Objects;
 
 public class TropicalAtom {
-	private Integer value = null;
+	private Double value = null;
 	
 	public TropicalAtom() {}
 	
-	public TropicalAtom(Integer value) {
+	public TropicalAtom(Double value) {
 		this.value = value;
 	}
 	
-	public Integer getValue() {
+	public TropicalAtom(Integer value) {
+		this.value = value.doubleValue();
+	}
+
+	public Double getValue() {
 		return value;
 	}
 
-	public void setValue(Integer value) {
+	public void setValue(Double value) {
 		this.value = value;
 	}
 
@@ -69,18 +73,16 @@ public class TropicalAtom {
 		if (getClass() != obj.getClass())
 			return false;
 		TropicalAtom other = (TropicalAtom) obj;
-		return Objects.equals(value, other.value);
-	}
-	
-	
-
-	/*
-	public TropicalAtom substraction(TropicalAtom tropicalAtom) {
-		if (isNegativeInfinite() || tropicalAtom.isNegativeInfinite()) {
-			return new TropicalAtom();
+		if (other.isNegativeInfinite() && isNegativeInfinite()) {
+			return true;
+		}else if (isNegativeInfinite()) {
+			return false;
+		}else if (other.isNegativeInfinite()) {
+			return false;
 		}
-		return new TropicalAtom(value - tropicalAtom.getValue());
+		Double otherValue = other.value;
+		return value >= otherValue -0.00000001 && value <= otherValue +0.00000001;
+		
 	}
-	*/
 	
 }

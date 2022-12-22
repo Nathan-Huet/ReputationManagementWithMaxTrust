@@ -94,7 +94,7 @@ public class TestFactory {
 	
 	public void launch4(int numberOfAgents) {
 		AgentFactory factoryGood = new GoodAgentFactory();
-		ThreatCFactory factoryThreatC = new ThreatCFactory(0.5);
+		ThreatCFactory factoryThreatC = new ThreatCFactory(0.7);
 		
 		Agent a0 = factoryGood.getAgent(numberOfAgents);
 		LinkedList<MaliciousCollectiveAgent> collectif = factoryThreatC.getCollective(numberOfAgents, 2);

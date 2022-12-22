@@ -85,7 +85,7 @@ public class Application {
 		System.out.println("[0][2] et [0][3] : "+trustMat[0][2].tropicalMultiplication(trustMat[0][3]).toString());
 	}
 
-	public void printTrustMatrix(TropicalAtom[][] trustMatrix) {
+	public static void printTrustMatrix(TropicalAtom[][] trustMatrix) {
 		for (int i = 0; i < trustMatrix.length; i++) {
 			System.out.print("[");
 			for (int j = 0; j < trustMatrix[i].length; j++) {

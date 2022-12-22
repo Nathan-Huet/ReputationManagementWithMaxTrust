@@ -30,23 +30,6 @@ public class MaliciousCollectiveAgent extends ThreatAgent {
 	public void setCollective(LinkedList<MaliciousCollectiveAgent> maliciousCollective) {
 		((MaliciousCollectiveStrategy)this.agentStrategy).setCollective(maliciousCollective);
 	}
-	
-	/**
-	 * méthode évaluant le résultat d'une interaction avec un autre Agent 
-	 * un Agent appartenant au collectif de MaliciousCollectiveAgent recevra de la confiance alors que les autres non
-	 * @param other l'autre Agent
-	 * @return true si la Strategy de l'Agent évalue le résultat comme positif et false sinon
-	 */
-	@Override
-	public boolean interactsWith(Agent other) {
-		boolean result = this.agentStrategy.evaluateResult(other);
-		
-		if (result) {
-			numberOfSuccessfulInteractions[other.id] ++;
-		}else {
-			numberOfUnsuccessfulInteractions[other.id] ++;
-		}
-		this.trustVector[other.id] = new TropicalAtom(numberOfSuccessfulInteractions[other.id] - numberOfUnsuccessfulInteractions[other.id]);
-		return result;
-	}
+
+
 }

@@ -11,14 +11,14 @@ import strategy.Strategy;
  *
  */
 public abstract class Agent {
-
+	protected int numberOfAgents;
 	protected Strategy agentStrategy;
 	protected int id;
-	protected TropicalAtom[] trustVector;
+	//protected TropicalAtom[] trustVector;
 	protected int[] numberOfSuccessfulInteractions;
 	protected int[] numberOfUnsuccessfulInteractions;
-	
-	
+
+
 	/**
 	 * Construction par défaut d'un Agent
 	 * @param id identifiant de l'Agent
@@ -26,22 +26,24 @@ public abstract class Agent {
 	 */
 	public Agent(int id, int numberOfAgents ) {
 		this.id = id;
-		this.trustVector = new TropicalAtom[numberOfAgents];
+		this.numberOfAgents = numberOfAgents;
+		//this.trustVector = new TropicalAtom[numberOfAgents];
 		this.numberOfSuccessfulInteractions = new int[numberOfAgents];
 		this.numberOfUnsuccessfulInteractions = new int[numberOfAgents];
-		
-		for (int i = 0; i < trustVector.length; i++) {
-			if (i == id) {
+
+		for (int i = 0; i < numberOfAgents; i++) {
+			/*if (i == id) {
 				trustVector[i] = new TropicalAtom(0);
 			}else {
 				trustVector[i] = new TropicalAtom();
 			}
+			*/
 			numberOfSuccessfulInteractions[i] = 0;
 			numberOfUnsuccessfulInteractions[i] = 0;
 		}
 	}
-	
-	
+
+
 	/**
 	 * retourne l'identifiant de l'agent
 	 * @return identifiant de l'agent
@@ -50,7 +52,7 @@ public abstract class Agent {
 		return id;
 	}
 
-	
+
 	/**
 	 * méthode évaluant le résultat d'une interaction avec un autre Agent 
 	 * la façon d'évaluer si le résultat est satisfaisant dépend de la Strategy de l'Agent courant
@@ -64,10 +66,10 @@ public abstract class Agent {
 		}else {
 			numberOfUnsuccessfulInteractions[other.id] ++;
 		}
-		this.trustVector[other.id] = new TropicalAtom(numberOfSuccessfulInteractions[other.id] - numberOfUnsuccessfulInteractions[other.id]);
+
 		return result;
 	}
-	
+
 	/**
 	 * retourne le résultat d'une interaction selon la Strategy de l'Agent
 	 * @return résultat d'une interaction selon la Strategy de l'Agent
@@ -75,19 +77,37 @@ public abstract class Agent {
 	public boolean getInteractionResult() {
 		return this.agentStrategy.getInteractionResult();
 	}
-	
+
 	/**
 	 * Retourne le vecteur de confiance de l'Agent
 	 * @return le vecteur de confiance de l'Agent
 	 */
 	public TropicalAtom[] getTrustVector() {
+		double sik = 0;
+		TropicalAtom[] trustVector = new TropicalAtom[numberOfAgents];
+		for (int k = 0; k < numberOfAgents; k++) {
+			sik += Math.max(0, numberOfSuccessfulInteractions[k] - numberOfUnsuccessfulInteractions[k]);
+		}
+		for (int j = 0; j < numberOfAgents; j++) {
+			if (numberOfSuccessfulInteractions[j] == 0 && numberOfUnsuccessfulInteractions[j] == 0) {
+				trustVector[j] = new TropicalAtom(); 
+			}
+			else {
+				double sij = Math.max(0, numberOfSuccessfulInteractions[j] - numberOfUnsuccessfulInteractions[j]);
+				double cij = sij/sik;
+				if (Double.isNaN(cij)) {
+					cij = 0.0;
+				}
+				trustVector[j] = new TropicalAtom(cij);
+			}
+		}
 		return trustVector;
 	}
-	
+
 	@Override
 	public String toString() {
-		return "A" + getId() + " " + Arrays.toString(trustVector);
+		return "A" + getId() + " " + Arrays.toString(getTrustVector());
 	}	
-	
-	
+
+
 }
