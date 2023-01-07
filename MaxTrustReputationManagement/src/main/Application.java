@@ -1,7 +1,8 @@
 package main;
 
-import model_Tropical.TropicalAtom;
-import model_Tropical.TropicalMatrix;
+import java.util.Arrays;
+
+import model_Tropical.*;
 
 public class Application {
 	public static void main(String[] args) {
@@ -64,12 +65,14 @@ public class Application {
 		System.out.println();
 		printTrustMatrix(tm.getTrustMatrix());
 		*/
+		/*
 		printTrustMatrix(tm.getTrustMatrix());
 		System.out.println();
 		TropicalMatrix transposed = new TropicalMatrix(numberOfAgent, convergence, tm.getTranspose());
 		printTrustMatrix(transposed.getTrustMatrix());
-
+		*/
 		// test tropical Addition et multiplication
+		/*
 		TropicalAtom[][] trustMat = tm.getTrustMatrix();
 		System.out.println();
 		System.out.println("tropicalAddition");
@@ -83,6 +86,44 @@ public class Application {
 		System.out.println("[0][0] et [1][1] : "+trustMat[0][0].tropicalMultiplication(trustMat[1][1]).toString());
 		System.out.println("[1][0] et [0][1] : "+trustMat[1][0].tropicalMultiplication(trustMat[0][1]).toString());
 		System.out.println("[0][2] et [0][3] : "+trustMat[0][2].tropicalMultiplication(trustMat[0][3]).toString());
+		*/
+
+        // Matrice à trigonaliser
+		double[][] matriceExemple1 = {{-1, 1, -1, -1, 1, 1},
+									{-2, 2, -1, 5, 1, 0},
+									{-2, 1, 0, 3, 1, -1},
+									{0, 0, 0, 2, 0, 0},
+									{-4, 1, -1, 0, 3, 3},
+									{0, 0, 0, 1, 0, 2}};
+		double[] valeurPropre1 = {1, 1, 1, 1, 2, 2};
+
+		double[][] matriceExemple2 = {{2, -3, 1, 1, -1},
+									{1, -2, 1, 1, 2},
+									{-1, 3, 0, -1, 2},
+									{2, -9, 2, 4, 7},
+									{0, 0, 0, 0, 2}};
+		double[] valeurPropre2 = {1, 1, 1, 1, 2};
+		/*
+		// trigonalisation version double[][]
+		double[][] m = tm.trigonalisation(matriceExemple2,valeurPropre2);
+		System.out.println("----final");
+		for (int i = 0; i < m.length; i++) {
+            System.out.println(Arrays.toString(m[i]));
+        }*/
+
+		TropicalAtom[][] tropicalMatrice2Exemple = new TropicalAtom[5][5];
+		TropicalAtom[] tropicalEgeinVector2Exemple = new TropicalAtom[5];
+		for (int i = 0; i < tropicalMatrice2Exemple.length; i++) {
+			for (int j = 0; j < tropicalMatrice2Exemple.length; j++) {
+				tropicalMatrice2Exemple[i][j] = new TropicalAtom(matriceExemple2[i][j]);
+			}
+		}
+		for (int i = 0; i < valeurPropre2.length; i++) {
+			tropicalEgeinVector2Exemple[i] = new TropicalAtom(valeurPropre2[i]);
+		}
+		TropicalMatrix tmMatriceExemple2 = new TropicalMatrix(5, 1, tropicalMatrice2Exemple);
+		tmMatriceExemple2.tropicalTrigonalisation(tropicalEgeinVector2Exemple);
+		printTrustMatrix(tmMatriceExemple2.getTrustMatrix());
 	}
 
 	public static void printTrustMatrix(TropicalAtom[][] trustMatrix) {
@@ -123,8 +164,8 @@ public class Application {
 			else 
 				System.out.print(",\t");
 		}
-
 	}
+
 
 }
 

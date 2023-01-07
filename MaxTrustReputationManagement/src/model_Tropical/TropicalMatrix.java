@@ -1,9 +1,8 @@
 package model_Tropical;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.Iterator;
-
-import main.Application;
+import java.util.Arrays;
 
 public class TropicalMatrix {
 	private int numberOfAgent;
@@ -211,5 +210,242 @@ public class TropicalMatrix {
 		}
 		
 		return new Pair(lambda,v);
+	}
+
+	public void tropicalTrigonalisation(TropicalAtom[] v) {
+		int n = numberOfAgent;
+		for (int k = 0; k < v.length; k++) {
+			TropicalAtom lambda = v[k];
+			tropicalMatrixSoustraction(tropicalIdentityMatrix(n).tropicalMatrixMultiplicationByValue(lambda).getTrustMatrix());
+			for (int j = n-1; j > k; j--) {
+				int i = k;
+				while(i<n && trustMatrix[i][j].getValue()==0){
+					i ++;
+				}
+				if (i>n-1) {
+					if (k!=j) {
+						swapColumn(k, j);
+						swapRow(k, j);
+						break;
+					}
+				}else{
+					for (int jj = k; jj < j; jj++) {
+						double top = -trustMatrix[i][jj].getValue();
+						double bot = trustMatrix[i][j].getValue();
+						double coef = top/bot;
+						if (coef==0 || bot == 0) {
+							break;
+						}
+						addColTropicalMatrix(j,jj,coef);
+						addRowTropicalMatrix(jj,j,-coef);
+					}
+				}
+			}
+			tropicalMatrixAddition(tropicalIdentityMatrix(n).tropicalMatrixMultiplicationByValue(lambda).getTrustMatrix());
+			
+		}
+	}
+	public void addColTropicalMatrix(int i, int ii, double coef){
+		for (int k = 0; k < numberOfAgent; k++) { 
+			trustMatrix[k][ii].addition(new TropicalAtom(trustMatrix[k][i].getValue()*coef));
+		}
+	}
+
+	public void addRowTropicalMatrix(int i, int ii, double coef){
+		for (int k = 0; k < numberOfAgent; k++) {
+			trustMatrix[ii][k].addition(new TropicalAtom(trustMatrix[i][k].getValue()*coef));
+		}
+	}
+	
+	public void tropicalMatrixAddition(TropicalAtom[][] m){
+		int n = m.length;
+        for(int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++) {
+                trustMatrix[i][j].addition(m[i][j]);
+            }
+        }
+	}
+	public void tropicalMatrixSoustraction(TropicalAtom[][] m){
+		int n = m.length;
+        for(int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++) {
+                trustMatrix[i][j].soustraction(m[i][j]);
+            }
+        }
+	}
+	public TropicalMatrix tropicalMatrixMultiplicationByValue(TropicalAtom value) {
+		int n = trustMatrix.length;
+		for(int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++) {
+                trustMatrix[i][j].multiplication(value);
+            }
+        }
+		return this;
+	}
+
+	public TropicalMatrix tropicalIdentityMatrix(int n){
+		TropicalAtom[][] m = new TropicalAtom[n][n];
+		for (int i = 0; i < n; i++) {
+			for (int j = 0; j < m[i].length; j++) {
+				if (i==j) {
+					m[i][j] = new TropicalAtom(1);
+				}else{
+					m[i][j] = new TropicalAtom(0);
+				}
+			}
+		}
+		return new TropicalMatrix(n, 1, m);
+	}
+
+
+
+	//-------------------------------------------
+
+	// test trigonalisation sur des matrice double[][]
+	public double[][] trigonalisation(double[][] matrix, double[] v) {
+		int n = matrix.length;
+		for (int k = 0; k < v.length; k++) {
+			double lambda = v[k];
+			double[][] m = soustractionMatrixMatrix(matrix,multiplicationValueMatrix(lambda, identityMatrix(n)));
+			System.out.println("-------------");
+			System.out.println("matrice de base");
+			for (int l = 0; l < m.length; l++) {
+				System.out.println(Arrays.toString(m[l]));
+			}
+			
+			for (int j = n-1; j > k; j--) {
+				int i = k;
+				while(i<n && m[i][j]==0){
+					i ++;
+				}
+				if (i>n-1) {
+					if (k!=j) {
+						System.out.println("["+(k+1)+","+(j+1)+"]");
+						m = swapColMatrix(m, k, j);
+						m = swapRowMatrix(m, k, j);
+						break;
+					}
+				}else{
+					for (int jj = k; jj < j; jj++) {
+						double top = -m[i][jj];
+						double bot = m[i][j];
+						double coef = top/bot;
+						if (coef==0 || bot == 0) {
+							break;
+						}
+						System.out.println("top : "+top);
+						System.out.println("bot : "+bot);
+						System.out.println("i,j,jj : "+i+","+j+","+jj);
+						System.out.println("["+(j+1)+","+(jj+1)+","+coef+"]");
+						m = addColMatrix(m,j,jj,coef);
+						m = addRowMatrix(m,jj,j,-coef);
+						for (int l = 0; l < matrix.length; l++) {
+							System.out.println(Arrays.toString(m[l]));
+						}
+					}
+				}
+			}
+			matrix = additionMatrixMatrix(m,multiplicationValueMatrix(lambda, identityMatrix(n)));
+			
+		}
+		return matrix;
+	}
+
+	public double[][] addColMatrix(double[][] m, int i, int ii, double coef){
+		for (int k = 0; k < m.length; k++) {
+			m[k][ii] = m[k][i]*coef + m[k][ii]; 
+		}
+		return m;
+	}
+
+	public double[][] addRowMatrix(double[][] m, int i, int ii, double coef){
+		for (int k = 0; k < m.length; k++) {
+			m[ii][k] = m[i][k]*coef + m[ii][k]; 
+		}
+		return m;
+	}
+
+	public double[][] swapRowMatrix(double[][] m, int i, int j){
+		double[] tmp = m[i];
+		m[i] = m[j];
+		m[j] = tmp;
+		return m;
+	}
+
+	public double[][] swapColMatrix(double[][] m, int i, int j){
+		double[] tmp = new double[m.length];
+		for (int k = 0; k < m.length; k++) {
+			tmp[k] = m[k][i];
+		}
+		for (int k = 0; k < m.length; k++) {
+			m[k][i] = m[k][j];
+		}
+		for (int k = 0; k < m.length; k++) {
+			m[k][j] = tmp[k];
+		}
+		return m;
+	}
+	public double[][] additionMatrixMatrix(double[][] m1, double[][] m2){
+		int n = m1.length;
+		double[][] s = new double[n][n];
+        for(int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++) {
+                s[i][j] = m1[i][j]+m2[i][j];
+            }
+        }
+		return s;
+	}
+	public double[][] soustractionMatrixMatrix(double[][] m1, double[][] m2){
+		int n = m1.length;
+		double[][] s = new double[n][n];
+        for(int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++) {
+                s[i][j] = m1[i][j]-m2[i][j];
+            }
+        }
+		return s;
+	}
+
+	public double[][] multiplicationValueMatrix(double lambda, double[][] m){
+		int n = m.length;
+		double[][] s = new double[n][n];
+        for(int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++) {
+                s[i][j] = m[i][j]*lambda;
+            }
+        }
+		return s;
+	}
+
+	public double[][] identityMatrix(int n){
+		double[][] m = new double[n][n];
+		for (int i = 0; i < n; i++) {
+			for (int j = 0; j < m[i].length; j++) {
+				if (i==j) {
+					m[i][j] = 1;
+				}else{
+					m[i][j] = 0;
+				}
+			}
+		}
+		return m;
+	}
+
+	public double[][] independentBloc(double[][] matrix){
+		int n = matrix.length;
+		double[][] m = matrix;
+		for (int k = 0; k < n; k++) {
+			for (int i = 0; i < n-k; i++) {
+				int j = n + k;
+				if (m[i][i]==m[j][j] || m[i][j]==0) {
+					break;
+				}else{
+					double coef = -m[i][j]/(m[i][i]-m[j][j]);
+					m = addColMatrix(m,i,j,coef);
+					m = addRowMatrix(m,j,i,-coef);
+				}
+			}
+		}
+		return m;
 	}
 }

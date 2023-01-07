@@ -50,6 +50,16 @@ public class TropicalAtom {
 		return new TropicalAtom(this.value + atom.getValue());
 	}
 
+	public void soustraction(TropicalAtom atom) {
+		value -= atom.getValue();
+	}
+	public void addition(TropicalAtom atom) {
+		value += atom.getValue();
+	}
+	public void multiplication(TropicalAtom atom) {
+		value *= atom.getValue();
+	}
+
 	@Override
 	public String toString() {
 		if (isNegativeInfinite()) {
