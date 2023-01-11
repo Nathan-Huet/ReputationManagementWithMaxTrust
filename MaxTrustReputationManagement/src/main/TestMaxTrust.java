@@ -45,6 +45,13 @@ public class TestMaxTrust {
 									{0, 0, 0, 0, 2}};
 		double[] valeurPropre2 = {1, 1, 1, 1, 2};
 
+		double[][] matriceExemple3BlocInde = {{1, 1, 1, 1, 1, 1},
+											  {0, 1, 1, 1, 1, 1},
+											  {0, 0, 1, 1, 1, 1},
+											  {0, 0, 0, 1, 1, 1},
+											  {0, 0, 0, 0, 2, 2},
+											  {0, 0, 0, 0, 0, 2}};
+
 		double[][] matriceExemple4MatriceJordaBloc = {{2, 0, 1, 2, 2, 0, 0, 0},
 													  {0, 2, 1, 1, 3, 0, 0, 0},
 													  {0, 0, 2, 0, 4, 0, 0, 0},
@@ -54,13 +61,16 @@ public class TestMaxTrust {
 													  {0, 0, 0, 0, 0, 0, 3, 4},
 													  {0, 0, 0, 0, 0, 0, 0, 3}};
 		
-		// trigonalisation version double[][]
+		// Matrice version double[][]
 		//double[][] m = tm.trigonalisation(matriceExemple2Trigo,valeurPropre2);
 		//double[][] m = tm.formNormalJordan(matriceExemple2Trigo, valeurPropre2);
 		//double[][] m = tm.independentBloc(matriceExemple3MatriceIndeBloc);
+		afficheMatriceDouble(matriceExemple4MatriceJordaBloc);
 		double[][] m = tm.jordaniser_blocs(matriceExemple4MatriceJordaBloc);
 		afficheMatriceDouble(m);
 		
+
+		// Matrice version tropical
 		TropicalAtom[][] tropicalMatrice2Exemple = new TropicalAtom[5][5];
 		TropicalAtom[] tropicalEgeinVector2Exemple = new TropicalAtom[5];
 		for (int i = 0; i < tropicalMatrice2Exemple.length; i++) {
@@ -75,6 +85,17 @@ public class TestMaxTrust {
 		//tmMatriceExemple2.tropicalFormNormalJordan(tropicalEgeinVector2Exemple);
 		//System.out.println("--- Matrice tropical J");
 		//printTrustMatrix(tmMatriceExemple2.getTrustMatrix());
+
+		TropicalAtom[][] tropicalMatrice3Exemple = new TropicalAtom[6][6];
+		for (int i = 0; i < tropicalMatrice3Exemple.length; i++) {
+			for (int j = 0; j < tropicalMatrice3Exemple.length; j++) {
+				tropicalMatrice3Exemple[i][j] = new TropicalAtom(matriceExemple3BlocInde[i][j]);
+			}
+		}
+		//TropicalMatrix tmMatriceExemple3 = new TropicalMatrix(6, 1, tropicalMatrice3Exemple);
+		//tmMatriceExemple3.tropicalIndependentBloc();;
+		//printTrustMatrix(tmMatriceExemple3.getTrustMatrix());
+
 	}
 
 	public static void printTrustMatrix(TropicalAtom[][] trustMatrix) {

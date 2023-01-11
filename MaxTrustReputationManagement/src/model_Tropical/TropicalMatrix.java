@@ -163,6 +163,21 @@ public class TropicalMatrix {
 		
 		return result;
 	}
+
+	/**
+	 * Multiplication tropicale vectorielle de deux vecteurs
+	 * @param vectorLeft vecteur à gauche de l'addition tropicale
+	 * @param vectorRight vecteur à droite de l'addition tropicale
+	 * @return somme vectorielle tropicale
+	 */
+	public TropicalAtom[] tropicalVectorMultiplication(TropicalAtom[] vectorLeft, TropicalAtom[] vectorRight) {
+		TropicalAtom[] result = new TropicalAtom[vectorLeft.length];
+		for (int i = 0; i < result.length; i++) {
+			result[i] = vectorLeft[i].tropicalMultiplication(vectorRight[i]);
+		}
+		
+		return result;
+	}
 	
 	public Pair maxPower(TropicalAtom[] r) {
 		int p = 0;
@@ -210,6 +225,46 @@ public class TropicalMatrix {
 		}
 		
 		return new Pair(lambda,v);
+	}
+
+	public TropicalAtom[] maxTrust(TropicalAtom[] w, int T){
+		int n = trustMatrix.length;
+		tropicalFormNormalJordan(w);
+		Pair[] lambda = new Pair[n];
+		lambda[n] = maxPower(w);
+		Pair[] epsi = lambda;
+		TropicalAtom[] v = new TropicalAtom[n];
+		int j = n-1;
+		while(j>1){
+			lambda[j] = maxPower(w);
+			TropicalAtom lambdaValue = lambda[j].getDominantEigenVector()[0];
+			for(int i = 1; i<j-1; i++){
+				lambdaValue = lambdaValue.tropicalMultiplication(lambda[j].getDominantEigenVector()[i]);
+			}
+			v[j] = trustMatrix[j][1].tropicalMultiplication(w[1].tropicalMultiplication(lambdaValue));
+			
+			lambdaValue = lambda[j].getDominantEigenVector()[0];
+			for(int i = 1; i<j-1; i++){
+				lambdaValue = lambdaValue.tropicalMultiplication(lambda[j].getDominantEigenVector()[i]);
+			}
+			for (int k = 1; k < n; k++) {
+				v[j] = v[j].tropicalAddition(trustMatrix[j][k].tropicalMultiplication(w[k].tropicalMultiplication(lambdaValue))); 
+			}
+
+			if (lambda[j].getDominantEigenValue()>epsi[j+1].getDominantEigenValue()) {
+				epsi[j] = lambda[j];
+			}else{
+				epsi[j] = lambda[j+1];
+				v[j] = new TropicalAtom(1/epsi[j].getDominantEigenValue()).tropicalMultiplication(v[j]);
+			}
+			j--;
+		}
+		TropicalAtom[] epsiValue = epsi[1].getDominantEigenVector();
+		for (int i = 2; i < T; i++) {
+			epsiValue = tropicalVectorMultiplication(epsiValue, epsi[i].getDominantEigenVector());
+		}
+		TropicalAtom[] fin = tropicalVectorMultiplication(v,epsiValue);
+		return fin;
 	}
 
 
@@ -471,13 +526,6 @@ public class TropicalMatrix {
 		for (int k = 0; k < v.length; k++) {
 			double lambda = v[k];
 			double[][] m = soustractionMatrixMatrix(matrix,multiplicationValueMatrix(lambda, identityMatrix(n)));
-			/*
-			System.out.println("-------------");
-			System.out.println("matrice de base");
-			for (int l = 0; l < m.length; l++) {
-				System.out.println(Arrays.toString(m[l]));
-			}*/
-			
 			for (int j = n-1; j > k; j--) {
 				int i = k;
 				while(i<n && m[i][j]==0){
@@ -590,7 +638,6 @@ public class TropicalMatrix {
 
 	public double[][] independentBloc(double[][] matrix){
 		int n = matrix.length;
-		System.out.println(n);
 		double[][] m = matrix;
 		for (int k = 0; k < n; k++) {
 			for (int i = 0; i < n-k; i++) {
@@ -620,10 +667,10 @@ public class TropicalMatrix {
 
 	private double[][] traiter_colonne(double[][] matrix, int k) {
 		double[][] m = matrix;
-		m = annuler_coefs_colonne(m,k);
-		m = normaliser_coefs_colonne(m,k);
+		//m = annuler_coefs_colonne(m,k);
+		//m = normaliser_coefs_colonne(m,k);
 		m = confrontation_coefs(m,k);
-		m = deplace_colonnes(m,k);
+		//m = deplace_colonnes(m,k);
 		return m;
 	}
 
@@ -640,34 +687,38 @@ public class TropicalMatrix {
 			for (int j = k; j >= l+2; j--) {
 				m = swapColMatrix(m, j, j-1);
 				m = swapRowMatrix(m, j, j-1);
+				System.out.println("["+j+","+(j-1)+"]");
 			}
 		}
 		return m;
 	}
 
 	private double[][] confrontation_coefs(double[][] matrix, int k) {
-		int n = matrix.length;
 		double[][] m = matrix;
 		int debut_bloc1 = 0;
 		int fin_bloc1 = 0;
 		int debut_bloc2 = 0;
 		int fin_bloc2 = 0;
 		for (int i = 0; i < k; i++) {
-			if (m[i][k]!=0) {
+			if (m[i][k] != 0) {
+				System.out.println("i,k,m : "+i+","+k+"="+m[i][k]);
 				fin_bloc1 = i;
 				break;
 			}
 		}
+		System.out.println("k,fin_bloc1 : "+k+","+fin_bloc1);
 		if (fin_bloc1>0) {
 			debut_bloc1 = limite_bloc_jordan(m, fin_bloc1);
 			for (int i = fin_bloc1+1; i < k; i++) {
 				if (m[i][k]!=0) {
 					fin_bloc2 = i;
 					debut_bloc2 = limite_bloc_jordan(m, fin_bloc2);
+					System.out.println("Confrontation");
 					if (fin_bloc2-debut_bloc2>=fin_bloc1-debut_bloc1) {
 						for (int ii = fin_bloc1; ii >= debut_bloc1; ii--) {
 							m = addColMatrix(m, ii, fin_bloc2+ii-fin_bloc1, 1);
 							m = addRowMatrix(m, fin_bloc2+ii-fin_bloc1, ii, -1);
+							System.out.println("["+ii+","+(fin_bloc2+ii-fin_bloc1)+","+1+"]");
 						}
 						debut_bloc1 = debut_bloc2;
 						fin_bloc1 = fin_bloc2;
@@ -675,6 +726,7 @@ public class TropicalMatrix {
 						for (int ii = fin_bloc2; ii >= debut_bloc2; ii--) {
 							m = addColMatrix(m, ii, fin_bloc1+ii-fin_bloc2, 1);
 							m = addRowMatrix(m, fin_bloc1+ii-fin_bloc2, ii,-1);
+							System.out.println("["+ii+","+(fin_bloc1+ii-fin_bloc2)+","+1+"]");
 						}
 					}
 				}
@@ -691,8 +743,10 @@ public class TropicalMatrix {
 			if (coef !=0 && coef!=1) {
 				int debut_bloc = limite_bloc_jordan(m,fin_bloc);
 				for (int i = fin_bloc; i > debut_bloc; i--) {
+					System.out.println("Normalisation");
 					m = mulCol(m,i,coef);
 					m = mulRow(m,i,1/coef);
+					System.out.println("["+i+","+i+","+coef+"]");
 				}
 			}
 		}
@@ -701,7 +755,7 @@ public class TropicalMatrix {
 
 	private int limite_bloc_jordan(double[][] m, int l) {
 		int debut_bloc = l;
-        for (int i = l-1; i > 1; i--) {
+        for (int i = l-1; i > 0; i--) {
 			if (m[i][i+1]!=0) {
 				debut_bloc = i;
 			}else{
@@ -731,9 +785,12 @@ public class TropicalMatrix {
 		double[][] m = matrix;
 		for (int i = 0; i < k-1; i++) {
 			if (m[i][k]!=0 && m[i][i+1]!=0) {
+				System.out.println("Annulation");
+				System.out.println("k,i : "+k+","+i);
 				double coef = (-m[i][k])/m[i][i+1];
 				m = addColMatrix(m, i+1, k, coef);
 				m = addRowMatrix(m, k, i+1, -coef);
+				System.out.println("["+(i+1)+","+k+","+coef+"]");
 			}
 		}
 		return m;
