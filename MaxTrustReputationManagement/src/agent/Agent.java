@@ -14,7 +14,6 @@ public abstract class Agent {
 	protected int numberOfAgents;
 	protected Strategy agentStrategy;
 	protected int id;
-	//protected TropicalAtom[] trustVector;
 	protected int[] numberOfSuccessfulInteractions;
 	protected int[] numberOfUnsuccessfulInteractions;
 
@@ -27,17 +26,10 @@ public abstract class Agent {
 	public Agent(int id, int numberOfAgents ) {
 		this.id = id;
 		this.numberOfAgents = numberOfAgents;
-		//this.trustVector = new TropicalAtom[numberOfAgents];
 		this.numberOfSuccessfulInteractions = new int[numberOfAgents];
 		this.numberOfUnsuccessfulInteractions = new int[numberOfAgents];
 
 		for (int i = 0; i < numberOfAgents; i++) {
-			/*if (i == id) {
-				trustVector[i] = new TropicalAtom(0);
-			}else {
-				trustVector[i] = new TropicalAtom();
-			}
-			*/
 			numberOfSuccessfulInteractions[i] = 0;
 			numberOfUnsuccessfulInteractions[i] = 0;
 		}
@@ -52,6 +44,21 @@ public abstract class Agent {
 		return id;
 	}
 
+	/**
+	 * Retourne le nombre d'interactions réussies
+	 * @return le nombre d'interactions réussies
+	 */
+	public int[] getNumberOfSuccessfulInteractions() {
+		return numberOfSuccessfulInteractions;
+	}
+
+	/**
+	 * Retourne le nombre d'interactions non réussies
+	 * @return le nombre d'interactions non réussies
+	 */
+	public int[] getNumberOfUnsuccessfulInteractions() {
+		return numberOfUnsuccessfulInteractions;
+	}
 
 	/**
 	 * méthode évaluant le résultat d'une interaction avec un autre Agent 
