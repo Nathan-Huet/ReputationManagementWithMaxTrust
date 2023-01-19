@@ -1,6 +1,5 @@
 package main;
 
-import java.util.Arrays;
 
 import model_Tropical.Pair;
 import model_Tropical.TropicalAtom;
@@ -60,15 +59,17 @@ public class TestMaxTrust {
 													  {0, 0, 0, 0, 0, 3, 1, 5},
 													  {0, 0, 0, 0, 0, 0, 3, 4},
 													  {0, 0, 0, 0, 0, 0, 0, 3}};
-		
-		// Matrice version double[][]
-		//double[][] m = tm.trigonalisation(matriceExemple2Trigo,valeurPropre2);
-		//double[][] m = tm.formNormalJordan(matriceExemple2Trigo, valeurPropre2);
-		//double[][] m = tm.independentBloc(matriceExemple3MatriceIndeBloc);
+
+		/*
 		afficheMatriceDouble(matriceExemple4MatriceJordaBloc);
 		double[][] m = tm.jordaniser_blocs(matriceExemple4MatriceJordaBloc);
 		afficheMatriceDouble(m);
 		
+		
+		afficheMatriceDouble(matriceExemple4MatriceJordaBlocTriche);
+		double[][] m = tm.jordaniser_blocsTriche(matriceExemple4MatriceJordaBlocTriche);
+		afficheMatriceDouble(m);
+		*/
 
 		// Matrice version tropical
 		TropicalAtom[][] tropicalMatrice2Exemple = new TropicalAtom[5][5];
@@ -96,8 +97,17 @@ public class TestMaxTrust {
 		//tmMatriceExemple3.tropicalIndependentBloc();;
 		//printTrustMatrix(tmMatriceExemple3.getTrustMatrix());
 
-	}
+		TropicalAtom[][] tropicalMatrice4Exemple = new TropicalAtom[8][8];
+		for (int i = 0; i < matriceExemple4MatriceJordaBloc.length; i++) {
+			for (int j = 0; j < matriceExemple4MatriceJordaBloc.length; j++) {
+				tropicalMatrice4Exemple[i][j] = new TropicalAtom(matriceExemple4MatriceJordaBloc[i][j]);
+			}
+		}
+		TropicalMatrix tmMatriceExemple4 = new TropicalMatrix(8, 1, tropicalMatrice4Exemple);
+		tmMatriceExemple4.tropicalJordaniser_blocs();
+		printTrustMatrix(tmMatriceExemple4.getTrustMatrix());
 
+	}
 	public static void printTrustMatrix(TropicalAtom[][] trustMatrix) {
 		for (int i = 0; i < trustMatrix.length; i++) {
 			System.out.print("[");
@@ -111,9 +121,4 @@ public class TestMaxTrust {
 		}
 	}
 
-	public void afficheMatriceDouble(double[][] m){
-		for (int i = 0; i < m.length; i++) {
-            System.out.println(Arrays.toString(m[i]));
-        }
-	}
 }
