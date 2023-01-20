@@ -16,6 +16,8 @@ public abstract class Agent {
 	protected int id;
 	protected int[] numberOfSuccessfulInteractions;
 	protected int[] numberOfUnsuccessfulInteractions;
+	private int[] realNumberOfUnsuccessfulInteractions;
+	private int[] realNumberOfSuccessfulInteractions;
 
 
 	/**
@@ -28,10 +30,14 @@ public abstract class Agent {
 		this.numberOfAgents = numberOfAgents;
 		this.numberOfSuccessfulInteractions = new int[numberOfAgents];
 		this.numberOfUnsuccessfulInteractions = new int[numberOfAgents];
+		this.realNumberOfSuccessfulInteractions = new int[numberOfAgents];
+		this.realNumberOfUnsuccessfulInteractions = new int[numberOfAgents];
 
 		for (int i = 0; i < numberOfAgents; i++) {
 			numberOfSuccessfulInteractions[i] = 0;
 			numberOfUnsuccessfulInteractions[i] = 0;
+			realNumberOfSuccessfulInteractions[i] = 0;
+			realNumberOfUnsuccessfulInteractions[i] = 0;
 		}
 	}
 
@@ -61,17 +67,40 @@ public abstract class Agent {
 	}
 
 	/**
+	 * Retourne le nombre d'interactions réussies
+	 * @return le nombre d'interactions réussies
+	 */
+	public int[] getRealNumberOfSuccessfulInteractions() {
+		return realNumberOfSuccessfulInteractions;
+	}
+
+	/**
+	 * Retourne le nombre d'interactions non réussies
+	 * @return le nombre d'interactions non réussies
+	 */
+	public int[] getRealNumberOfUnsuccessfulInteractions() {
+		return realNumberOfUnsuccessfulInteractions;
+	}
+
+	/**
 	 * méthode évaluant le résultat d'une interaction avec un autre Agent 
 	 * la façon d'évaluer si le résultat est satisfaisant dépend de la Strategy de l'Agent courant
 	 * @param other l'autre Agent
 	 * @return true si la Strategy de l'Agent évalue le résultat comme positif et false sinon
 	 */
 	public boolean interactsWith(Agent other) {
-		boolean result = agentStrategy.evaluateResult(other);
+		boolean interactionResult = other.getInteractionResult();
+		boolean result = agentStrategy.evaluateResult(other,interactionResult);
 		if (result) {
 			numberOfSuccessfulInteractions[other.id] ++;
 		}else {
 			numberOfUnsuccessfulInteractions[other.id] ++;
+		}
+
+		if (interactionResult) {
+			realNumberOfSuccessfulInteractions[other.id] ++;
+		}else {
+			realNumberOfUnsuccessfulInteractions[other.id] ++;
 		}
 
 		return result;

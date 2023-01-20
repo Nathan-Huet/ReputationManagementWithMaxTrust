@@ -17,7 +17,8 @@ public interface Strategy {
 	/**
 	 * évaluation du résultat selon le point de vue de la Strategy
 	 * @param other un Agent avec qui la Strategy interagit
+	 * @param interactionResult resultat de l'interaction avec l'autre agent
 	 * @return true si la Strategy est satisfaite du résultat et false sinon
 	 */
-	public abstract boolean evaluateResult(Agent other);
+	public abstract boolean evaluateResult(Agent other, boolean interactionResult);
 }

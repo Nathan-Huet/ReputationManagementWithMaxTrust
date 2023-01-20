@@ -9,7 +9,6 @@ import agent.GoodAgent;
 import agent.ThreatAgent;
 import factory.GoodAgentFactory;
 import factory.ThreatAFactory;
-import main.Application;
 import model_Tropical.TropicalAtom;
 import model_Tropical.TropicalMatrix;
 
@@ -98,10 +97,10 @@ public class World {
      * Retourne le nombre total d'interactions réussies avec des bons agents comme émetteur de la demande d'interaction
      * @return Le nombre total d'interactions réussies avec des bons agents comme émetteur de la demande d'interaction
      */
-    public int numberOfSuccessfulInteractionsGoodAgents() {
+    public int realNumberOfSuccessfulInteractionsGoodAgents() {
         int result = 0;
         for (GoodAgent goodAgent : goodAgents) {
-            int[] numberOfSuccess = goodAgent.getNumberOfSuccessfulInteractions();
+            int[] numberOfSuccess = goodAgent.getRealNumberOfSuccessfulInteractions();
             for (int i = 0; i < numberOfSuccess.length; i++) {
                 result += numberOfSuccess[i];
             }
@@ -113,10 +112,41 @@ public class World {
      * Retourne le nombre total d'interactions non réussies avec des bons agents comme émetteur de la demande d'interaction
      * @return Le nombre total d'interactions non réussies avec des bons agents comme émetteur de la demande d'interaction
      */
-    public int numberOfUnsuccessfulInteractionsGoodAgents() {
+    public int realNumberOfUnsuccessfulInteractionsGoodAgents() {
         int result = 0;
         for (GoodAgent goodAgent : goodAgents) {
-            int[] numberOfFailure = goodAgent.getNumberOfUnsuccessfulInteractions();
+            int[] numberOfFailure = goodAgent.getRealNumberOfUnsuccessfulInteractions();
+            for (int i = 0; i < numberOfFailure.length; i++) {
+                result += numberOfFailure[i];
+            }
+        }
+        return result;
+    }
+
+
+    /**
+     * Retourne le nombre total d'interactions réussies 
+     * @return Le nombre total d'interactions réussies 
+     */
+    public int realNumberOfSuccessfulInteractions() {
+        int result = 0;
+        for (Agent agent : agents) {
+            int[] numberOfSuccess = agent.getRealNumberOfSuccessfulInteractions();
+            for (int i = 0; i < numberOfSuccess.length; i++) {
+                result += numberOfSuccess[i];
+            }
+        }
+        return result;
+    }
+
+    /**
+     * Retourne le nombre total d'interactions non réussies
+     * @return Le nombre total d'interactions non réussies 
+     */
+    public int realNumberOfUnsuccessfulInteractions() {
+        int result = 0;
+        for (Agent agent : agents) {
+            int[] numberOfFailure = agent.getRealNumberOfUnsuccessfulInteractions();
             for (int i = 0; i < numberOfFailure.length; i++) {
                 result += numberOfFailure[i];
             }
@@ -209,6 +239,7 @@ public class World {
             if (agentsListening.contains(agent)) {
                 if (agentsListening.size() > 1) {
                     Agent peer;
+                    //Refaire la sélection en se basant sur la matrice de confiance 
                     do {
                         int positionOfAgent = random.nextInt(agentsListening.size());
                         peer = agentsListening.get(positionOfAgent);    
@@ -232,6 +263,7 @@ public class World {
         for (Agent agent : agentsIssuingQuery) {
             if (agentsListening.size() > 0) {
                 Agent peer;
+                //Refaire la sélection en se basant sur la matrice de confiance 
                 do {
                     int positionOfAgent = random.nextInt(agentsListening.size());
                     peer = agentsListening.get(positionOfAgent);    
