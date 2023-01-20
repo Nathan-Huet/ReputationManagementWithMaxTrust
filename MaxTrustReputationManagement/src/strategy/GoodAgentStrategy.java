@@ -18,8 +18,8 @@ public class GoodAgentStrategy implements Strategy {
 	}
 
 	@Override
-	public boolean evaluateResult(Agent other) {
-		return other.getInteractionResult();
+	public boolean evaluateResult(Agent other, boolean interactionResult) {
+		return interactionResult;
 	}
 
 	

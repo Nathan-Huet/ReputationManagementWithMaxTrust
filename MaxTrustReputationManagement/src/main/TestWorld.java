@@ -6,12 +6,14 @@ import world.World;
 public class TestWorld {
     public static void main(String[] args) {
         double convergence = 1;
-        World world = new World(3, 2, convergence);
-        System.out.println(world);
+        World world = new World(60, 42, convergence);
+        //System.out.println(world);
         //TestWorld tworld = new TestWorld();
         //tworld.launch1(world);
         world.runOneSimulationCycle(30);
-        Application.printTrustMatrix(world.gatherTropicalVector().getTrustMatrix());
+        System.out.println(world.realNumberOfSuccessfulInteractions());
+        System.out.println(world.realNumberOfUnsuccessfulInteractions());
+
     }
 
     public void launch1(World world) {
@@ -52,8 +54,8 @@ public class TestWorld {
 		System.out.println(a4);
 		
 
-        System.out.println(world.numberOfSuccessfulInteractionsGoodAgents());
-        System.out.println(world.numberOfUnsuccessfulInteractionsGoodAgents());
+        System.out.println(world.realNumberOfSuccessfulInteractionsGoodAgents());
+        System.out.println(world.realNumberOfUnsuccessfulInteractionsGoodAgents());
 
         System.out.println(world);
 

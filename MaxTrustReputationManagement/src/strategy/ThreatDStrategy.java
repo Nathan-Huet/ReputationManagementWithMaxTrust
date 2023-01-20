@@ -19,7 +19,7 @@ public class ThreatDStrategy extends MaliciousCollectiveStrategy {
 	}
 
 	@Override
-	public boolean evaluateResult(Agent other) {
+	public boolean evaluateResult(Agent other, boolean interactionResult) {
 		for (ThreatAgent i : maliciousCollectiveB) {
 			if (i.getId() == other.getId()) {
 				return true;

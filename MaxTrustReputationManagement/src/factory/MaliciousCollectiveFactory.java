@@ -2,7 +2,6 @@ package factory;
 
 import java.util.LinkedList;
 
-import agent.Agent;
 import agent.MaliciousCollectiveAgent;
 
 public abstract class MaliciousCollectiveFactory implements AgentFactory{

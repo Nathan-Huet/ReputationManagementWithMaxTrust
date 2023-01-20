@@ -2,7 +2,6 @@ package agent;
 
 import java.util.LinkedList;
 
-import model_Tropical.TropicalAtom;
 import strategy.MaliciousCollectiveStrategy;
 
 /**

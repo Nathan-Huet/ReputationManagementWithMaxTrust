@@ -97,10 +97,10 @@ public class World {
      * Retourne le nombre total d'interactions réussies avec des bons agents comme émetteur de la demande d'interaction
      * @return Le nombre total d'interactions réussies avec des bons agents comme émetteur de la demande d'interaction
      */
-    public int numberOfSuccessfulInteractionsGoodAgents() {
+    public int realNumberOfSuccessfulInteractionsGoodAgents() {
         int result = 0;
         for (GoodAgent goodAgent : goodAgents) {
-            int[] numberOfSuccess = goodAgent.getNumberOfSuccessfulInteractions();
+            int[] numberOfSuccess = goodAgent.getRealNumberOfSuccessfulInteractions();
             for (int i = 0; i < numberOfSuccess.length; i++) {
                 result += numberOfSuccess[i];
             }
@@ -112,10 +112,41 @@ public class World {
      * Retourne le nombre total d'interactions non réussies avec des bons agents comme émetteur de la demande d'interaction
      * @return Le nombre total d'interactions non réussies avec des bons agents comme émetteur de la demande d'interaction
      */
-    public int numberOfUnsuccessfulInteractionsGoodAgents() {
+    public int realNumberOfUnsuccessfulInteractionsGoodAgents() {
         int result = 0;
         for (GoodAgent goodAgent : goodAgents) {
-            int[] numberOfFailure = goodAgent.getNumberOfUnsuccessfulInteractions();
+            int[] numberOfFailure = goodAgent.getRealNumberOfUnsuccessfulInteractions();
+            for (int i = 0; i < numberOfFailure.length; i++) {
+                result += numberOfFailure[i];
+            }
+        }
+        return result;
+    }
+
+
+    /**
+     * Retourne le nombre total d'interactions réussies 
+     * @return Le nombre total d'interactions réussies 
+     */
+    public int realNumberOfSuccessfulInteractions() {
+        int result = 0;
+        for (Agent agent : agents) {
+            int[] numberOfSuccess = agent.getRealNumberOfSuccessfulInteractions();
+            for (int i = 0; i < numberOfSuccess.length; i++) {
+                result += numberOfSuccess[i];
+            }
+        }
+        return result;
+    }
+
+    /**
+     * Retourne le nombre total d'interactions non réussies
+     * @return Le nombre total d'interactions non réussies 
+     */
+    public int realNumberOfUnsuccessfulInteractions() {
+        int result = 0;
+        for (Agent agent : agents) {
+            int[] numberOfFailure = agent.getRealNumberOfUnsuccessfulInteractions();
             for (int i = 0; i < numberOfFailure.length; i++) {
                 result += numberOfFailure[i];
             }
@@ -145,35 +176,70 @@ public class World {
     }
 
     public void runOneSimulationCycle(int numberOfQueryCycles) {
+        boolean[][] agentsListeningAtStep = new boolean[numberOfQueryCycles][agents.size()];
+        boolean[][] agentsIssuingQueryAtStep = new boolean[numberOfQueryCycles][agents.size()];
         for (int i = 0; i < numberOfQueryCycles; i++) {
-            System.out.println("Query cycle n°" + (i+1));
-            runOneQueryCycle();
+            for (int j = 0; j < agents.size(); j++) {
+                agentsIssuingQueryAtStep[i][j] = false;
+                agentsListeningAtStep[i][j] = false;
+            }
+        }
+
+        Random random = new Random();
+        for (int i = 0; i < agents.size(); i++) {
+            int numberOfStepListening = random.nextInt(numberOfQueryCycles);
+            int numberOfStepIssuingQuery = random.nextInt(numberOfQueryCycles/2);
+            //System.out.println("A" + i + ", Listening :" +numberOfStepListening);
+            //System.out.println("A" + i + ", Issuing :" + numberOfStepIssuingQuery);
+            while (numberOfStepListening > 0) {
+                int positionOfStep = 0;
+                do {
+                    positionOfStep = random.nextInt(numberOfQueryCycles);    
+                } while (agentsListeningAtStep[positionOfStep][i]);
+                agentsListeningAtStep[positionOfStep][i] = true;
+                numberOfStepListening--;
+            }
+
+            while (numberOfStepIssuingQuery > 0) {
+                int positionOfStep = 0;
+                do {
+                    positionOfStep = random.nextInt(numberOfQueryCycles);    
+                } while (agentsIssuingQueryAtStep[positionOfStep][i]);
+                agentsIssuingQueryAtStep[positionOfStep][i] = true;
+                numberOfStepIssuingQuery--;
+            }
+        }
+        /*System.out.println("Listening");
+        Application.printBooleanMatrix(agentsListeningAtStep);
+        System.out.println("Issuing");
+        Application.printBooleanMatrix(agentsIssuingQueryAtStep);
+        */
+        for (int i = 0; i < numberOfQueryCycles; i++) {
+            //System.out.println("Query cycle n°" + (i+1));
+            runOneQueryCycle(agentsIssuingQueryAtStep[i], agentsListeningAtStep[i]);
         }
     }
 
-    //TODO
-    public void runOneQueryCycle() {
-        Random random = new Random();
+    public void runOneQueryCycle(boolean[] agentsIssuingQueryAtStep, boolean[] agentsListeningAtStep) {
         LinkedList<Agent> agentsListening = new LinkedList<>();
         LinkedList<Agent> agentsIssuingQuery = new LinkedList<>();
-        for (Agent agent : agents) {
-            boolean isListening = random.nextBoolean();
-            boolean isIssuingQuery = random.nextBoolean();
-            if (isListening) {
-                agentsListening.add(agent);
+        for (int i = 0; i < agents.size(); i++) {
+            if (agentsIssuingQueryAtStep[i]) {
+                agentsIssuingQuery.add(agents.get(i));
             }
-            if (isIssuingQuery) {
-                agentsIssuingQuery.add(agent);
+
+            if (agentsListeningAtStep[i]) {
+                agentsListening.add(agents.get(i));
             }
-        }    
-        //System.out.println("agentsListening : " + agentsListening);
-        //System.out.println("agentsIssuingQuery : " + agentsIssuingQuery);
+        }
+        Random random = new Random();
         int numberOfAgentQueryWithoutResponse = 0;
         LinkedList<Agent> toRemove = new LinkedList<>();
         for (Agent agent : agentsIssuingQuery) {
             if (agentsListening.contains(agent)) {
                 if (agentsListening.size() > 1) {
                     Agent peer;
+                    //Refaire la sélection en se basant sur la matrice de confiance 
                     do {
                         int positionOfAgent = random.nextInt(agentsListening.size());
                         peer = agentsListening.get(positionOfAgent);    
@@ -183,7 +249,7 @@ public class World {
                     toRemove.add(agent);
                 }else{
                     numberOfAgentQueryWithoutResponse++;
-                    System.out.println("Query without response : " + numberOfAgentQueryWithoutResponse);
+                    //System.out.println("Query without response : " + numberOfAgentQueryWithoutResponse);
                     toRemove.add(agent);
                 }
             }
@@ -197,6 +263,7 @@ public class World {
         for (Agent agent : agentsIssuingQuery) {
             if (agentsListening.size() > 0) {
                 Agent peer;
+                //Refaire la sélection en se basant sur la matrice de confiance 
                 do {
                     int positionOfAgent = random.nextInt(agentsListening.size());
                     peer = agentsListening.get(positionOfAgent);    
@@ -206,7 +273,7 @@ public class World {
             }
             else{
                 numberOfAgentQueryWithoutResponse++;
-                System.out.println("Query without response : " + numberOfAgentQueryWithoutResponse);
+                //System.out.println("Query without response : " + numberOfAgentQueryWithoutResponse);
             }
         }
     }
