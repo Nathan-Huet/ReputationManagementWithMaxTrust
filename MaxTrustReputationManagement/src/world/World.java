@@ -9,6 +9,7 @@ import agent.GoodAgent;
 import agent.ThreatAgent;
 import factory.GoodAgentFactory;
 import factory.ThreatAFactory;
+import main.Application;
 import model_Tropical.TropicalAtom;
 import model_Tropical.TropicalMatrix;
 
@@ -145,29 +146,63 @@ public class World {
     }
 
     public void runOneSimulationCycle(int numberOfQueryCycles) {
+        boolean[][] agentsListeningAtStep = new boolean[numberOfQueryCycles][agents.size()];
+        boolean[][] agentsIssuingQueryAtStep = new boolean[numberOfQueryCycles][agents.size()];
         for (int i = 0; i < numberOfQueryCycles; i++) {
-            System.out.println("Query cycle n°" + (i+1));
-            runOneQueryCycle();
+            for (int j = 0; j < agents.size(); j++) {
+                agentsIssuingQueryAtStep[i][j] = false;
+                agentsListeningAtStep[i][j] = false;
+            }
+        }
+
+        Random random = new Random();
+        for (int i = 0; i < agents.size(); i++) {
+            int numberOfStepListening = random.nextInt(numberOfQueryCycles);
+            int numberOfStepIssuingQuery = random.nextInt(numberOfQueryCycles/2);
+            //System.out.println("A" + i + ", Listening :" +numberOfStepListening);
+            //System.out.println("A" + i + ", Issuing :" + numberOfStepIssuingQuery);
+            while (numberOfStepListening > 0) {
+                int positionOfStep = 0;
+                do {
+                    positionOfStep = random.nextInt(numberOfQueryCycles);    
+                } while (agentsListeningAtStep[positionOfStep][i]);
+                agentsListeningAtStep[positionOfStep][i] = true;
+                numberOfStepListening--;
+            }
+
+            while (numberOfStepIssuingQuery > 0) {
+                int positionOfStep = 0;
+                do {
+                    positionOfStep = random.nextInt(numberOfQueryCycles);    
+                } while (agentsIssuingQueryAtStep[positionOfStep][i]);
+                agentsIssuingQueryAtStep[positionOfStep][i] = true;
+                numberOfStepIssuingQuery--;
+            }
+        }
+        /*System.out.println("Listening");
+        Application.printBooleanMatrix(agentsListeningAtStep);
+        System.out.println("Issuing");
+        Application.printBooleanMatrix(agentsIssuingQueryAtStep);
+        */
+        for (int i = 0; i < numberOfQueryCycles; i++) {
+            //System.out.println("Query cycle n°" + (i+1));
+            runOneQueryCycle(agentsIssuingQueryAtStep[i], agentsListeningAtStep[i]);
         }
     }
 
-    //TODO
-    public void runOneQueryCycle() {
-        Random random = new Random();
+    public void runOneQueryCycle(boolean[] agentsIssuingQueryAtStep, boolean[] agentsListeningAtStep) {
         LinkedList<Agent> agentsListening = new LinkedList<>();
         LinkedList<Agent> agentsIssuingQuery = new LinkedList<>();
-        for (Agent agent : agents) {
-            boolean isListening = random.nextBoolean();
-            boolean isIssuingQuery = random.nextBoolean();
-            if (isListening) {
-                agentsListening.add(agent);
+        for (int i = 0; i < agents.size(); i++) {
+            if (agentsIssuingQueryAtStep[i]) {
+                agentsIssuingQuery.add(agents.get(i));
             }
-            if (isIssuingQuery) {
-                agentsIssuingQuery.add(agent);
+
+            if (agentsListeningAtStep[i]) {
+                agentsListening.add(agents.get(i));
             }
-        }    
-        //System.out.println("agentsListening : " + agentsListening);
-        //System.out.println("agentsIssuingQuery : " + agentsIssuingQuery);
+        }
+        Random random = new Random();
         int numberOfAgentQueryWithoutResponse = 0;
         LinkedList<Agent> toRemove = new LinkedList<>();
         for (Agent agent : agentsIssuingQuery) {
@@ -183,7 +218,7 @@ public class World {
                     toRemove.add(agent);
                 }else{
                     numberOfAgentQueryWithoutResponse++;
-                    System.out.println("Query without response : " + numberOfAgentQueryWithoutResponse);
+                    //System.out.println("Query without response : " + numberOfAgentQueryWithoutResponse);
                     toRemove.add(agent);
                 }
             }
@@ -206,7 +241,7 @@ public class World {
             }
             else{
                 numberOfAgentQueryWithoutResponse++;
-                System.out.println("Query without response : " + numberOfAgentQueryWithoutResponse);
+                //System.out.println("Query without response : " + numberOfAgentQueryWithoutResponse);
             }
         }
     }

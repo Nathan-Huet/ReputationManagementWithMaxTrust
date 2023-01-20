@@ -11,7 +11,9 @@ public class TestWorld {
         //TestWorld tworld = new TestWorld();
         //tworld.launch1(world);
         world.runOneSimulationCycle(30);
-        Application.printTrustMatrix(world.gatherTropicalVector().getTrustMatrix());
+        System.out.println(world.numberOfSuccessfulInteractionsGoodAgents());
+        System.out.println(world.numberOfUnsuccessfulInteractionsGoodAgents());
+
     }
 
     public void launch1(World world) {
