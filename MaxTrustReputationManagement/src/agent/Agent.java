@@ -83,6 +83,23 @@ public abstract class Agent {
 	}
 
 	/**
+	 * retourne un tableau de booleen true si l'agent connait l'agent de la position dans le tableau, false sinon 
+	 * @return tableau de booleen true si l'agent connait l'agent de la position dans le tableau, false sinon
+	 */
+	public boolean[] getUnknownAgents(){
+		TropicalAtom[] trustVector = getTrustVector();
+		boolean[] unknownAgents = new boolean[trustVector.length];
+		for (int i = 0; i < trustVector.length; i++) {
+			if (trustVector[i].isNegativeInfinite()) {
+				unknownAgents[i] = true;
+			}else{
+				unknownAgents[i] = false;
+			}
+		}
+		return unknownAgents;
+	}
+
+	/**
 	 * méthode évaluant le résultat d'une interaction avec un autre Agent 
 	 * la façon d'évaluer si le résultat est satisfaisant dépend de la Strategy de l'Agent courant
 	 * @param other l'autre Agent

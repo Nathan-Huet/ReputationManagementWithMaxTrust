@@ -3,7 +3,8 @@ package model_Tropical;
 import java.util.Objects;
 
 public class TropicalAtom {
-	private Double value = null;
+	private Double value = Double.NEGATIVE_INFINITY;
+	public static double precision = 0.000001;
 	
 	public TropicalAtom() {}
 	
@@ -24,7 +25,7 @@ public class TropicalAtom {
 	}
 
 	public boolean isNegativeInfinite() {
-		return value == null;
+		return (value == null)||(value == Double.NEGATIVE_INFINITY);
 	}
 
 	public TropicalAtom tropicalAddition(TropicalAtom atom){
@@ -50,14 +51,35 @@ public class TropicalAtom {
 		return new TropicalAtom(this.value + atom.getValue());
 	}
 
-	public void soustraction(TropicalAtom atom) {
-		value -= atom.getValue();
+	public TropicalAtom soustraction(TropicalAtom atom) {
+		if (isNegativeInfinite() && atom.isNegativeInfinite()) {
+			return this;
+		}else if (isNegativeInfinite()){
+			return new TropicalAtom(-atom.getValue());
+		}else if(atom.isNegativeInfinite()){
+			return new TropicalAtom(value);
+		}else{
+			return new TropicalAtom(value - atom.getValue());
+		}
 	}
-	public void addition(TropicalAtom atom) {
-		value += atom.getValue();
+
+	public TropicalAtom addition(TropicalAtom atom) {
+		if (isNegativeInfinite() && atom.isNegativeInfinite()) {
+			return this;
+		}else if(isNegativeInfinite()){
+			return new TropicalAtom(atom.getValue());
+		}else if(atom.isNegativeInfinite()){
+			return new TropicalAtom(value);
+		}else{
+			return new TropicalAtom(value + atom.getValue());
+		}
 	}
-	public void multiplication(TropicalAtom atom) {
-		value *= atom.getValue();
+	public TropicalAtom multiplication(TropicalAtom atom) {
+		if (isNegativeInfinite() || atom.isNegativeInfinite()) {
+			return this;
+		}else{
+			return new TropicalAtom(value * atom.getValue());
+		}
 	}
 
 	@Override
@@ -91,8 +113,32 @@ public class TropicalAtom {
 			return false;
 		}
 		Double otherValue = other.value;
-		return value >= otherValue -0.00000001 && value <= otherValue +0.00000001;
+		return value >= otherValue - precision && value <= otherValue + precision;
 		
 	}
-	
+
+	/**
+	 * Renvoie true si la valeur d'un atome est compris strictement entre la valeur d'un atome minimal et la valeur d'un atome maximal
+	 * @param boundBot atome minimal
+	 * @param boundTop atome maximal
+	 * @return true si l'atome est compris entre les deux autres et false sinon (ou si les bornes sont inversées)
+	 */
+    public boolean between(TropicalAtom boundBot, TropicalAtom boundTop) {
+		if (isNegativeInfinite() && boundTop.isNegativeInfinite() && boundBot.isNegativeInfinite()) {
+			return true;
+		}
+		if (isNegativeInfinite() || boundTop.isNegativeInfinite()) {
+			return false;
+		}
+		if (!boundBot.isNegativeInfinite() && boundBot.value > boundTop.value) {
+			return false;
+		}
+		if (boundBot.isNegativeInfinite()) {
+			return value <= boundTop.value;
+		}else{
+			return boundBot.value <= value && value <= boundTop.value;
+		}
+    }
+
+   
 }

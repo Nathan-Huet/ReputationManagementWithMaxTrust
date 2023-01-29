@@ -1,7 +1,6 @@
 package main;
 
 
-import model_Tropical.Pair;
 import model_Tropical.TropicalAtom;
 import model_Tropical.TropicalMatrix;
 
@@ -23,7 +22,7 @@ public class TestMaxTrust {
 		
 		TropicalMatrix tm = new TropicalMatrix(numberAgents, convergence, tat);
 		TropicalAtom[] r =  tm.getTrustMatrix()[0];
-		Pair pair = tm.maxPower(r);
+		//Pair pair = tm.maxPower(r);
 		//System.out.println(pair.getDominantEigenValue());
 		//Application.printTrustVector(pair.getDominantEigenVector());
 
@@ -104,7 +103,7 @@ public class TestMaxTrust {
 			}
 		}
 		TropicalMatrix tmMatriceExemple4 = new TropicalMatrix(8, 1, tropicalMatrice4Exemple);
-		tmMatriceExemple4.tropicalJordaniser_blocs();
+		tmMatriceExemple4.tropicalIndependentBloc();
 		printTrustMatrix(tmMatriceExemple4.getTrustMatrix());
 
 	}

@@ -1,6 +1,5 @@
 package main;
 
-import java.util.Arrays;
 
 import model_Tropical.*;
 
@@ -11,7 +10,7 @@ public class Application {
 	}
 
 	public void launch() {
-		int numberOfAgent = 5;
+		/*int numberOfAgent = 5;
 		
 		int convergence = 1;
 		TropicalMatrix tm = new TropicalMatrix(numberOfAgent, convergence, true);
