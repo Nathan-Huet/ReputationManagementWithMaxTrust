@@ -16,10 +16,9 @@ public class TropicalMatrix {
 	public TropicalMatrix(int numberOfAgent, double convergence) {
 		this.numberOfAgent = numberOfAgent;
 		this.convergence = convergence;
-		this.positionOfAgentInTrustMatrixColumn = new int[numberOfAgent];
-		this.positionOfAgentInTrustMatrixRow = new int[numberOfAgent];
+		this.positionOfAgentInTrustMatrixColumn = generateList();
+		this.positionOfAgentInTrustMatrixRow = generateList();
 		this.trustMatrix = new TropicalAtom[numberOfAgent][numberOfAgent];
-		
 	}
 	
 	public TropicalMatrix(int numberOfAgent, double convergence, TropicalAtom[][] trustMatrix) {
@@ -39,6 +38,13 @@ public class TropicalMatrix {
 					trustMatrix[i][j] = new TropicalAtom(j - i);
 			}
 		}
+	}
+	private int[] generateList(){
+		int[] list = new int[numberOfAgent];
+		for (int i = 0; i < list.length; i++) {
+			list[i] = i;
+		}
+		return list;
 	}
 
 	public TropicalAtom[][] getTrustMatrix() {
@@ -199,6 +205,15 @@ public class TropicalMatrix {
 		
 		return result;
 	}
+
+	private TropicalAtom[] vectorOrganize(int[] listPos, TropicalAtom[] listElem){
+		for (int i = 0; i < listElem.length; i++) {
+			TropicalAtom elemtmp = listElem[i];
+			listElem[i] = listElem[listPos[i]];
+			listElem[listPos[i]] = elemtmp;
+		}
+		return listElem;
+	}
 	
 	public Pair maxPower(TropicalAtom[] r) {
 		int p = 0;
@@ -206,8 +221,8 @@ public class TropicalMatrix {
 		TropicalAtom convergenceAtomMinus = new TropicalAtom(-convergence);
 		int q = -1;
 		ArrayList<TropicalAtom[]> vArray = new ArrayList<>();
-		vArray.add(r);
-
+		vArray.add(vectorOrganize(positionOfAgentInTrustMatrixRow, r));
+		
 		boolean conditionContinue = false;
 		do {
 			vArray.add(tropicalMatrixMultiplicationByVector(getTranspose(), vArray.get(p)));
@@ -217,7 +232,13 @@ public class TropicalMatrix {
 				conditionContinue = false;
 				TropicalAtom[] vq = vArray.get(q);
 				/*
+				System.out.println("-- vq :");
 				for (TropicalAtom tropicalAtom : vq) {
+					System.out.print(tropicalAtom.getValue()+", ");
+				}
+				System.out.println("");
+				System.out.println("-- vp :");
+				for (TropicalAtom tropicalAtom : vp) {
 					System.out.print(tropicalAtom.getValue()+", ");
 				}
 				System.out.println("");
@@ -236,19 +257,15 @@ public class TropicalMatrix {
 		}while(conditionContinue);
 		
 		double lambda = convergence / (p-q);
-		
-		TropicalAtom[] v = new TropicalAtom[numberOfAgent];
-		for (int i = 0; i < v.length; i++) {
-			v[i] = new TropicalAtom();
-		}
-		
+		TropicalAtom[] v = vArray.get(p);
 		for (int i = 1; i < p-q; i++) {
 			TropicalAtom[] vqPlusIMinus1 = vArray.get(q+i-1);
-			double lambdaPower = 1;
+			double lambdaPower = 0;
 			for (int j = 0; j < p-q-i; j++) {
-				lambdaPower *= lambda;
+				lambdaPower += lambda;
 			}
 			TropicalAtom[] vectorMultiplied = tropicalVectorMultiplicationByValue(vqPlusIMinus1, lambdaPower);
+			
 			v = tropicalVectorAddition(v,vectorMultiplied);
 		}
 		
@@ -294,9 +311,17 @@ public class TropicalMatrix {
             epsiValue.tropicalMultiplication(new TropicalAtom(epsi[0]));
         }
         TropicalAtom[] fin = tropicalVectorMultiplicationByValue(v,epsiValue.getValue());
+		//printAgentValue(v);
         return fin;
     }
 
+	public void printAgentValue(TropicalAtom[] values){
+		System.out.print("[ ");
+		for (int i = 0; i < values.length; i++) {
+			System.out.print(positionOfAgentInTrustMatrixRow[i]+" : "+values[positionOfAgentInTrustMatrixRow[i]]+", ");
+		}
+		System.out.println(" ]");
+	}
 	//-------------------------------------------
 	//-------------------------------------------
 	// trigonalisation sur des matrices tropical

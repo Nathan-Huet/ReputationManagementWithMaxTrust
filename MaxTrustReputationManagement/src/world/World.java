@@ -262,7 +262,7 @@ public class World {
             World.numberOfQueryCycle = i+1;
             System.out.println("Query cycle n°" + (i+1));
             TropicalAtom[] tropicalTrustVector = computeTropicalTrustVector(terminalTime);
-            //System.out.println("COUCOU");
+            
             runOneQueryCycle(agentsIssuingQueryAtStep[i], agentsListeningAtStep[i],tropicalTrustVector);
         }
     }

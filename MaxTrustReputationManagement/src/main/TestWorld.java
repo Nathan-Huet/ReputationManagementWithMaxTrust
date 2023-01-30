@@ -6,7 +6,7 @@ import world.World;
 public class TestWorld {
     public static void main(String[] args) {
         double convergence = 0.1;
-        World world = new World(3,60, 42, convergence);
+        World world = new World(3,20, 10, convergence);
         //System.out.println(world);
         //TestWorld tworld = new TestWorld();
         //tworld.launch1(world);
@@ -15,8 +15,8 @@ public class TestWorld {
         //TropicalAtom[] v = world.initialTrustVector();
         
         world.runOneSimulationCycle(numberOfQueryCycles,terminalTime);
-        System.out.println("1: " + world.realNumberOfSuccessfulInteractions());
-        System.out.println("2: " + world.realNumberOfUnsuccessfulInteractions());
+        System.out.println("1: " + world.realNumberOfSuccessfulInteractionsGoodAgents());
+        System.out.println("2: " + world.realNumberOfUnsuccessfulInteractionsGoodAgents());
 
     }
 
