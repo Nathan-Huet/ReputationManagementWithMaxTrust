@@ -39,6 +39,6 @@ public class IdCreator {
 	 */
 	public int getNumberOfAgent() {
 		int num = idCreator.numberOfAgents;
-		return num + 1;
+		return num;
 	}
 }

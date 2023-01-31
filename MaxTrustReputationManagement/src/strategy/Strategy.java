@@ -1,24 +1,31 @@
 package strategy;
 
 import agent.Agent;
+import world.SimulationLogger;
 
 /**
- * Cette interface est utilisée pour modéliser la Strategy d'un Agent et sa manière d'évaluer ses pairs
+ * Cette classe abstraite est utilisée pour modéliser la Strategy d'un Agent et sa manière d'évaluer ses pairs
  *
  */
-public interface Strategy {
+public abstract class Strategy {
 
 	/**
 	 * calcule si le résultat est positif lorsque la Strategy est appliquée
 	 * @return true si le résultat est positif et false sinon
 	 */
-	public boolean getInteractionResult();
+	public abstract boolean getInteractionResult();
+
+	protected abstract boolean evaluate(Agent other, boolean interactionResult);
 
 	/**
 	 * évaluation du résultat selon le point de vue de la Strategy
 	 * @param other un Agent avec qui la Strategy interagit
-	 * @param interactionResult resultat de l'interaction avec l'autre agent
 	 * @return true si la Strategy est satisfaite du résultat et false sinon
 	 */
-	public abstract boolean evaluateResult(Agent other, boolean interactionResult);
+	public boolean evaluateResult(Agent thisAgent, Agent other){
+		boolean interactionResult = other.getInteractionResult();
+		SimulationLogger.getSimulationLogger().realEvaluation(thisAgent, other, interactionResult);
+
+		return evaluate(other, interactionResult);
+	}
 }

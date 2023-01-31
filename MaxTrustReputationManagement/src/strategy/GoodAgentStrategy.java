@@ -8,7 +8,7 @@ import agent.Agent;
  * Cette classe est utilisée pour modéliser la Strategy d'un Agent qui fait de son mieux pour produire des résultats positifs 
  *
  */
-public class GoodAgentStrategy implements Strategy {
+public class GoodAgentStrategy extends Strategy {
 	private final double probabilityOfPositiveResult = 0.95;
 	
 	@Override
@@ -18,7 +18,7 @@ public class GoodAgentStrategy implements Strategy {
 	}
 
 	@Override
-	public boolean evaluateResult(Agent other, boolean interactionResult) {
+	public boolean evaluate(Agent other, boolean interactionResult) {
 		return interactionResult;
 	}
 
