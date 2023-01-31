@@ -188,7 +188,7 @@ public class World {
      * @return vecteur de probabilité (réputation pour chaque agent du système)
      */
     public TropicalAtom[] computeTropicalTrustVector(int terminalTime) {
-        return gatherTropicalVector().maxTrust(initialTrustVector(), terminalTime);
+        return gatherTropicalVector().computeMaxTrust(initialTrustVector(), terminalTime);
     }
 
     /**

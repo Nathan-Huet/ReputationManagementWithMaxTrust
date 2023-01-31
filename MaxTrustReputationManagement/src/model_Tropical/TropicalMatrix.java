@@ -215,6 +215,17 @@ public class TropicalMatrix {
 		return listElem;
 	}
 	
+	public TropicalAtom[] computeMaxTrust(TropicalAtom[] initialTrustVector, int terminalTime){
+		TropicalAtom[] tmp = maxTrust(initialTrustVector, terminalTime);
+		TropicalAtom[] result = new TropicalAtom[tmp.length];
+
+		for (int i = 0; i < tmp.length; i++) {
+			result[positionOfAgentInTrustMatrixRow[i]] = tmp[i];
+		}
+
+		return result;
+	}
+
 	public Pair maxPower(TropicalAtom[] r) {
 		int p = 0;
 		TropicalAtom convergenceAtomPlus = new TropicalAtom(convergence);
