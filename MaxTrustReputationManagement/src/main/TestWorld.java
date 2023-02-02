@@ -5,14 +5,16 @@ import world.World;
 
 public class TestWorld {
     public static void main(String[] args) {
-        double convergence = 1;
-        World world = new World(60, 42, convergence);
-        //System.out.println(world);
-        //TestWorld tworld = new TestWorld();
-        //tworld.launch1(world);
-        world.runOneSimulationCycle(30);
-        System.out.println(world.realNumberOfSuccessfulInteractions());
-        System.out.println(world.realNumberOfUnsuccessfulInteractions());
+        double convergence = 0.1;
+        World world = new World(3,20, 10, convergence);
+
+        int numberOfSimulationCycles = 30;
+        int numberOfQueryCycles = 50;
+        int terminalTime = 5;
+        
+        world.runOneExperiment(numberOfSimulationCycles,numberOfQueryCycles,terminalTime);
+        System.out.println("1: " + world.realNumberOfSuccessfulInteractionsGoodAgents());
+        System.out.println("2: " + world.realNumberOfUnsuccessfulInteractionsGoodAgents());
 
     }
 

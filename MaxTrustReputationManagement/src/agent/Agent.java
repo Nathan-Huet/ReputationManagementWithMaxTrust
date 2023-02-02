@@ -4,6 +4,7 @@ import java.util.Arrays;
 
 import model_Tropical.TropicalAtom;
 import strategy.Strategy;
+import world.SimulationLogger;
 
 /**
  * Une instance de cette classe est utilisée afin de modéliser des interactions 
@@ -14,10 +15,7 @@ public abstract class Agent {
 	protected int numberOfAgents;
 	protected Strategy agentStrategy;
 	protected int id;
-	protected int[] numberOfSuccessfulInteractions;
-	protected int[] numberOfUnsuccessfulInteractions;
-	private int[] realNumberOfUnsuccessfulInteractions;
-	private int[] realNumberOfSuccessfulInteractions;
+	
 
 
 	/**
@@ -28,17 +26,6 @@ public abstract class Agent {
 	public Agent(int id, int numberOfAgents ) {
 		this.id = id;
 		this.numberOfAgents = numberOfAgents;
-		this.numberOfSuccessfulInteractions = new int[numberOfAgents];
-		this.numberOfUnsuccessfulInteractions = new int[numberOfAgents];
-		this.realNumberOfSuccessfulInteractions = new int[numberOfAgents];
-		this.realNumberOfUnsuccessfulInteractions = new int[numberOfAgents];
-
-		for (int i = 0; i < numberOfAgents; i++) {
-			numberOfSuccessfulInteractions[i] = 0;
-			numberOfUnsuccessfulInteractions[i] = 0;
-			realNumberOfSuccessfulInteractions[i] = 0;
-			realNumberOfUnsuccessfulInteractions[i] = 0;
-		}
 	}
 
 
@@ -55,7 +42,7 @@ public abstract class Agent {
 	 * @return le nombre d'interactions réussies
 	 */
 	public int[] getNumberOfSuccessfulInteractions() {
-		return numberOfSuccessfulInteractions;
+		return SimulationLogger.getSimulationLogger().getNumberOfSuccessfulInteractions(id);
 	}
 
 	/**
@@ -63,7 +50,7 @@ public abstract class Agent {
 	 * @return le nombre d'interactions non réussies
 	 */
 	public int[] getNumberOfUnsuccessfulInteractions() {
-		return numberOfUnsuccessfulInteractions;
+		return SimulationLogger.getSimulationLogger().getNumberOfUnsuccessfulInteractions(id);
 	}
 
 	/**
@@ -71,7 +58,7 @@ public abstract class Agent {
 	 * @return le nombre d'interactions réussies
 	 */
 	public int[] getRealNumberOfSuccessfulInteractions() {
-		return realNumberOfSuccessfulInteractions;
+		return SimulationLogger.getSimulationLogger().getRealNumberOfSuccessfulInteractions(this.id);
 	}
 
 	/**
@@ -79,7 +66,24 @@ public abstract class Agent {
 	 * @return le nombre d'interactions non réussies
 	 */
 	public int[] getRealNumberOfUnsuccessfulInteractions() {
-		return realNumberOfUnsuccessfulInteractions;
+		return SimulationLogger.getSimulationLogger().getRealNumberOfUnsuccessfulInteractions(this.id);
+	}
+
+	/**
+	 * retourne un tableau de booleen true si l'agent connait l'agent de la position dans le tableau, false sinon 
+	 * @return tableau de booleen true si l'agent connait l'agent de la position dans le tableau, false sinon
+	 */
+	public boolean[] getUnknownAgents(){
+		TropicalAtom[] trustVector = getTrustVector();
+		boolean[] unknownAgents = new boolean[trustVector.length];
+		for (int i = 0; i < trustVector.length; i++) {
+			if (trustVector[i].isNegativeInfinite()) {
+				unknownAgents[i] = true;
+			}else{
+				unknownAgents[i] = false;
+			}
+		}
+		return unknownAgents;
 	}
 
 	/**
@@ -89,19 +93,8 @@ public abstract class Agent {
 	 * @return true si la Strategy de l'Agent évalue le résultat comme positif et false sinon
 	 */
 	public boolean interactsWith(Agent other) {
-		boolean interactionResult = other.getInteractionResult();
-		boolean result = agentStrategy.evaluateResult(other,interactionResult);
-		if (result) {
-			numberOfSuccessfulInteractions[other.id] ++;
-		}else {
-			numberOfUnsuccessfulInteractions[other.id] ++;
-		}
-
-		if (interactionResult) {
-			realNumberOfSuccessfulInteractions[other.id] ++;
-		}else {
-			realNumberOfUnsuccessfulInteractions[other.id] ++;
-		}
+		boolean result = agentStrategy.evaluateResult(this,other);
+		SimulationLogger.getSimulationLogger().evaluation(this, other, result);
 
 		return result;
 	}
@@ -122,14 +115,14 @@ public abstract class Agent {
 		double sik = 0;
 		TropicalAtom[] trustVector = new TropicalAtom[numberOfAgents];
 		for (int k = 0; k < numberOfAgents; k++) {
-			sik += Math.max(0, numberOfSuccessfulInteractions[k] - numberOfUnsuccessfulInteractions[k]);
+			sik += Math.max(0, getNumberOfSuccessfulInteractions()[k] - getNumberOfUnsuccessfulInteractions()[k]);
 		}
 		for (int j = 0; j < numberOfAgents; j++) {
-			if (numberOfSuccessfulInteractions[j] == 0 && numberOfUnsuccessfulInteractions[j] == 0) {
+			if (getNumberOfSuccessfulInteractions()[j] == 0 && getNumberOfUnsuccessfulInteractions()[j] == 0) {
 				trustVector[j] = new TropicalAtom(); 
 			}
 			else {
-				double sij = Math.max(0, numberOfSuccessfulInteractions[j] - numberOfUnsuccessfulInteractions[j]);
+				double sij = Math.max(0, getNumberOfSuccessfulInteractions()[j] - getNumberOfUnsuccessfulInteractions()[j]);
 				double cij = sij/sik;
 				if (Double.isNaN(cij)) {
 					cij = 0.0;

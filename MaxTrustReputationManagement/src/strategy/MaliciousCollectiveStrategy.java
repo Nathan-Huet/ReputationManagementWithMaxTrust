@@ -4,7 +4,7 @@ import java.util.LinkedList;
 
 import agent.MaliciousCollectiveAgent;
 
-public abstract class MaliciousCollectiveStrategy implements Strategy {	
+public abstract class MaliciousCollectiveStrategy extends StrategyAbstract {	
 	protected LinkedList<MaliciousCollectiveAgent> maliciousCollective = null;
 
 	/**

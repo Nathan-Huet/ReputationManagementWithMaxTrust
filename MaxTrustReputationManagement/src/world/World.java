@@ -1,7 +1,6 @@
 package world;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.Random;
 
 import agent.Agent;
@@ -13,34 +12,51 @@ import model_Tropical.TropicalAtom;
 import model_Tropical.TropicalMatrix;
 
 public class World {
+   
+    protected double probaChosingUnknown = 0.1;
     protected double convergence;
     protected ArrayList<Agent> agents;
+    protected ArrayList<GoodAgent> trustedPeers;
     protected ArrayList<GoodAgent> goodAgents;
     protected ArrayList<ThreatAgent> threatAgents;
 
-    public World(int numberOfGoodAgent, double convergence){
+    public World(int numberOfTrustedPeers,int numberOfGoodAgent, double convergence){
         this.convergence = convergence;
-        int numberOfAgent = numberOfGoodAgent;
+        int numberOfAgent = numberOfTrustedPeers + numberOfGoodAgent;
+
         GoodAgentFactory factoryGood = new GoodAgentFactory();
         agents = new ArrayList<>();
         goodAgents = new ArrayList<>();
+        trustedPeers = new ArrayList<>();
 
+        Agent agent;
+        for (int i = 0; i < numberOfTrustedPeers; i++) {
+            agent = factoryGood.getAgent(numberOfAgent);
+            trustedPeers.add((GoodAgent) agent);
+            agents.add(agent);
+        }
         for (int i = 0; i < numberOfGoodAgent; i++) {
-            Agent agent = factoryGood.getAgent(numberOfAgent);
+            agent = factoryGood.getAgent(numberOfAgent);
             goodAgents.add((GoodAgent) agent);
             agents.add(agent);
         }
     }
 
-    public World(int numberOfGoodAgent, int numberOfAgentTheatA , double convergence) {
+    public World(int numberOfTrustedPeers,int numberOfGoodAgent, int numberOfAgentTheatA , double convergence) {
         this.convergence = convergence;
-        int numberOfAgent = numberOfGoodAgent + numberOfAgentTheatA;
+        int numberOfAgent = numberOfTrustedPeers + numberOfGoodAgent + numberOfAgentTheatA;
 
         GoodAgentFactory factoryGood = new GoodAgentFactory();
         agents = new ArrayList<>();
         goodAgents = new ArrayList<>();
+        trustedPeers = new ArrayList<>();
 
         Agent agent;
+        for (int i = 0; i < numberOfTrustedPeers; i++) {
+            agent = factoryGood.getAgent(numberOfAgent);
+            trustedPeers.add((GoodAgent) agent);
+            agents.add(agent);
+        }
         for (int i = 0; i < numberOfGoodAgent; i++) {
             agent = factoryGood.getAgent(numberOfAgent);
             goodAgents.add((GoodAgent) agent);
@@ -166,16 +182,58 @@ public class World {
         return new TropicalMatrix(getNumberOfAgent(), convergence, tropicalMatrix);
     }
 
-
     /**
-     * Appellera les fonctions pour calculer la matrice de confiance
-     * @return
+     * calcule le vecteur de confiance globale du système
+     * @param terminalTime le temps terminal que l'on se donne pour maxTrust
+     * @return vecteur de probabilité (réputation pour chaque agent du système)
      */
-    public TropicalMatrix computeTropicalMatrix() {
-        return gatherTropicalVector();
+    public TropicalAtom[] computeTropicalTrustVector(int terminalTime) {
+        return gatherTropicalVector().computeMaxTrust(initialTrustVector(), terminalTime);
     }
 
-    public void runOneSimulationCycle(int numberOfQueryCycles) {
+    /**
+     * retourne le vecteur de confiance initial 
+     * @return vecteur de confiance initial
+     */
+    public TropicalAtom[] initialTrustVector() {
+        TropicalAtom[] trustVector = new TropicalAtom[getNumberOfAgent()];
+        double initialProba = 1.0/trustedPeers.size();
+        for (int i = 0; i < trustVector.length; i++) {
+            trustVector[i] = new TropicalAtom(0.0);
+        }
+        for (GoodAgent peer : trustedPeers) {
+            trustVector[peer.getId()] = new TropicalAtom(initialProba);
+        }
+        return trustVector;
+    }
+
+    /**
+     * Execute une experience 
+     * @param numberOfSimulationCycles nombre de cycle de simulation par experience
+     * @param numberOfQueryCycles nombre de cycle de requête par cycle de simulation
+     * @param terminalTime le temps terminal que l'on se donne pour maxTrust
+     */
+    public void runOneExperiment(int numberOfSimulationCycles, int numberOfQueryCycles, int terminalTime) {
+        SimulationLogger.getSimulationLogger().newSimulationCycle();
+        System.out.println("Simulation cycle n°" + SimulationLogger.getSimulationLogger().getSimulationCycle());
+        runOneSimulationCycle(numberOfQueryCycles, initialTrustVector());
+        for (int i = 0; i < numberOfSimulationCycles - 1; i++) {
+            SimulationLogger.getSimulationLogger().newSimulationCycle();
+            System.out.println("Simulation cycle n°" + SimulationLogger.getSimulationLogger().getSimulationCycle());
+            SimulationLogger.getSimulationLogger().resetQueryCycles();
+            TropicalAtom[] tropicalTrustVector = computeTropicalTrustVector(terminalTime);
+            runOneSimulationCycle(numberOfQueryCycles, tropicalTrustVector);
+           
+        }
+        
+    }
+
+    /**
+     * Execute un cycle de simulation du système
+     * @param numberOfQueryCycles nombre de cycle de requête par cycle de simulation
+     * @param terminalTime le temps terminal que l'on se donne pour maxTrust
+     */
+    public void runOneSimulationCycle(int numberOfQueryCycles, TropicalAtom[] tropicalTrustVector) {
         boolean[][] agentsListeningAtStep = new boolean[numberOfQueryCycles][agents.size()];
         boolean[][] agentsIssuingQueryAtStep = new boolean[numberOfQueryCycles][agents.size()];
         for (int i = 0; i < numberOfQueryCycles; i++) {
@@ -189,8 +247,7 @@ public class World {
         for (int i = 0; i < agents.size(); i++) {
             int numberOfStepListening = random.nextInt(numberOfQueryCycles);
             int numberOfStepIssuingQuery = random.nextInt(numberOfQueryCycles/2);
-            //System.out.println("A" + i + ", Listening :" +numberOfStepListening);
-            //System.out.println("A" + i + ", Issuing :" + numberOfStepIssuingQuery);
+
             while (numberOfStepListening > 0) {
                 int positionOfStep = 0;
                 do {
@@ -209,20 +266,33 @@ public class World {
                 numberOfStepIssuingQuery--;
             }
         }
-        /*System.out.println("Listening");
-        Application.printBooleanMatrix(agentsListeningAtStep);
-        System.out.println("Issuing");
-        Application.printBooleanMatrix(agentsIssuingQueryAtStep);
-        */
+
+        for (GoodAgent trustedPeer : trustedPeers) {
+            for (int i = 0; i < numberOfQueryCycles; i++) {
+                agentsIssuingQueryAtStep[i][trustedPeer.getId()] = true;
+                agentsListeningAtStep[i][trustedPeer.getId()] = true;
+            }
+        }
+
         for (int i = 0; i < numberOfQueryCycles; i++) {
-            //System.out.println("Query cycle n°" + (i+1));
-            runOneQueryCycle(agentsIssuingQueryAtStep[i], agentsListeningAtStep[i]);
+            SimulationLogger.getSimulationLogger().newQueryCycle();
+            System.out.println("Query cycle n°" + SimulationLogger.getSimulationLogger().getQueryCycle());            
+            runOneQueryCycle(agentsIssuingQueryAtStep[i], agentsListeningAtStep[i],tropicalTrustVector);
         }
     }
 
-    public void runOneQueryCycle(boolean[] agentsIssuingQueryAtStep, boolean[] agentsListeningAtStep) {
-        LinkedList<Agent> agentsListening = new LinkedList<>();
-        LinkedList<Agent> agentsIssuingQuery = new LinkedList<>();
+    /**
+     * Execute un cycle de requête
+     * @param agentsIssuingQueryAtStep vecteur booléen indiquant si un agent fait une requête sur ce cycle
+     * @param agentsListeningAtStep vecteur booléen indiquant si un agent écoute les requêtes sur ce cycle
+     * @param tropicalTrustVector vecteur de confiance global du système (réputation des agents)
+     */
+    public void runOneQueryCycle(boolean[] agentsIssuingQueryAtStep, boolean[] agentsListeningAtStep, TropicalAtom[] tropicalTrustVector) {
+        ArrayList<Agent> agentsListening = new ArrayList<>();
+        ArrayList<Agent> agentsIssuingQuery = new ArrayList<>();
+        ArrayList<Double> agentsListeningProbability = new ArrayList<>();
+        double normalisation = 0;
+
         for (int i = 0; i < agents.size(); i++) {
             if (agentsIssuingQueryAtStep[i]) {
                 agentsIssuingQuery.add(agents.get(i));
@@ -230,52 +300,88 @@ public class World {
 
             if (agentsListeningAtStep[i]) {
                 agentsListening.add(agents.get(i));
+                normalisation += tropicalTrustVector[i].getValue();
+                agentsListeningProbability.add(tropicalTrustVector[i].getValue());
             }
         }
         Random random = new Random();
         int numberOfAgentQueryWithoutResponse = 0;
-        LinkedList<Agent> toRemove = new LinkedList<>();
+
         for (Agent agent : agentsIssuingQuery) {
+            ArrayList<Agent> agentsListeningWork = new ArrayList<>();
+            ArrayList<Double> agentsListeningProbabilityWork = new ArrayList<>();
+            agentsListeningWork.addAll(agentsListening);
+            agentsListeningProbabilityWork.addAll(agentsListeningProbability);
             if (agentsListening.contains(agent)) {
-                if (agentsListening.size() > 1) {
-                    Agent peer;
-                    //Refaire la sélection en se basant sur la matrice de confiance 
-                    do {
-                        int positionOfAgent = random.nextInt(agentsListening.size());
-                        peer = agentsListening.get(positionOfAgent);    
-                    } while (agent.equals(peer));
-                    agentsListening.remove(peer);
-                    agent.interactsWith(peer);
-                    toRemove.add(agent);
+                int position = agentsListening.indexOf(agent);
+                agentsListeningWork.remove(position);
+                agentsListeningProbabilityWork.remove(position);
+               
+            }
+
+            double selection = random.nextDouble();
+            double somme = 0;
+            Agent peer;
+            boolean[] unknownAgents = agent.getUnknownAgents();
+            ArrayList<Agent> unknownAgentsList = new ArrayList<>();
+            ArrayList<Agent> knownAgentsList = new ArrayList<>();
+            ArrayList<Agent> toRemove = new ArrayList<>();
+            ArrayList<Integer> toRemoveProbability = new ArrayList<>();
+            for (Agent potentialPeer : agentsListeningWork) {
+                if (unknownAgents[potentialPeer.getId()]) {
+                    unknownAgentsList.add(potentialPeer);
+                    int position = agentsListeningWork.indexOf(potentialPeer);
+                    toRemove.add(potentialPeer);
+                    toRemoveProbability.add(position);
                 }else{
-                    numberOfAgentQueryWithoutResponse++;
-                    //System.out.println("Query without response : " + numberOfAgentQueryWithoutResponse);
-                    toRemove.add(agent);
+                    knownAgentsList.add(potentialPeer);
                 }
             }
-        }
-        //System.out.println("PASS 1");
+            for (Agent remove : toRemove) {
+                agentsListeningWork.remove(remove);
+            }
+            for (int j = toRemoveProbability.size() - 1; j >= 0; j--) {
+                agentsListeningProbabilityWork.remove(toRemoveProbability.get(j).intValue());
+            }
 
-        for (Agent agent : toRemove) {
-            agentsIssuingQuery.remove(agent);
-        }
-
-        for (Agent agent : agentsIssuingQuery) {
-            if (agentsListening.size() > 0) {
-                Agent peer;
-                //Refaire la sélection en se basant sur la matrice de confiance 
-                do {
-                    int positionOfAgent = random.nextInt(agentsListening.size());
-                    peer = agentsListening.get(positionOfAgent);    
-                } while (agent.equals(peer));
-                agentsListening.remove(peer);
+            if (selection <= probaChosingUnknown && unknownAgentsList.size()>0 || agentsListeningWork.size() < 1 && unknownAgentsList.size()>0) {
+                peer = unknownAgentsList.get(random.nextInt(unknownAgentsList.size()));
                 agent.interactsWith(peer);
+
+            }else{
+                if (agentsListeningProbabilityWork.size() == 0) {
+                    numberOfAgentQueryWithoutResponse++;
+                    System.out.println("Query without response in this cycle: " + numberOfAgentQueryWithoutResponse);
+                    break;
+                }
+
+                normalisation = 0;
+                for (int index = 0; index < agentsListeningProbabilityWork.size(); index++) {
+                    normalisation += agentsListeningProbabilityWork.get(index);
+                }
+                normalisation = 1/normalisation;
+                for (int index = 0; index < agentsListeningProbabilityWork.size(); index++) {
+                    agentsListeningProbabilityWork.set(index, agentsListeningProbabilityWork.get(index) * normalisation);
+                }
+
+                for (int i = 0; i < agentsListeningProbabilityWork.size(); i++) {
+                    double tmp = somme + agentsListeningProbabilityWork.get(i);
+                    if (selection > somme && selection <= tmp) {
+                        peer = agentsListeningWork.get(i);
+                        agent.interactsWith(peer);
+                        break;
+                    }
+                    somme = tmp;
+                }
+
+                
             }
-            else{
-                numberOfAgentQueryWithoutResponse++;
-                //System.out.println("Query without response : " + numberOfAgentQueryWithoutResponse);
-            }
+            
+            
+           
         }
+
+
     }
 
 }

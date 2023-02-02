@@ -2,6 +2,7 @@ package model_Tropical;
 
 import java.util.ArrayList;
 
+
 public class TropicalMatrix {
 	private int numberOfAgent;
 	private TropicalAtom[][] trustMatrix;
@@ -12,10 +13,9 @@ public class TropicalMatrix {
 	public TropicalMatrix(int numberOfAgent, double convergence) {
 		this.numberOfAgent = numberOfAgent;
 		this.convergence = convergence;
-		this.positionOfAgentInTrustMatrixColumn = new int[numberOfAgent];
-		this.positionOfAgentInTrustMatrixRow = new int[numberOfAgent];
+		this.positionOfAgentInTrustMatrixColumn = generateList();
+		this.positionOfAgentInTrustMatrixRow = generateList();
 		this.trustMatrix = new TropicalAtom[numberOfAgent][numberOfAgent];
-		
 	}
 	
 	public TropicalMatrix(int numberOfAgent, double convergence, TropicalAtom[][] trustMatrix) {
@@ -35,6 +35,13 @@ public class TropicalMatrix {
 					trustMatrix[i][j] = new TropicalAtom(j - i);
 			}
 		}
+	}
+	private int[] generateList(){
+		int[] list = new int[numberOfAgent];
+		for (int i = 0; i < list.length; i++) {
+			list[i] = i;
+		}
+		return list;
 	}
 
 	public TropicalAtom[][] getTrustMatrix() {
@@ -112,7 +119,7 @@ public class TropicalMatrix {
 	}
 	
 	/**
-	 * retourne le résultat d'une multiplication de matrice par un vecteur
+	 * retourne le résultat d'une multiplication tropical de matrice par un vecteur
 	 * @param matrix matrice
 	 * @param vector vecteur
 	 * @return résultat d'une multiplication de matrice par un vecteur
@@ -129,7 +136,7 @@ public class TropicalMatrix {
 		}
 		return result;
 	}
-	
+
 	/**
 	 * retourne le résultat d'une multiplication d'un vecteur par un entier
 	 * @param vector vecteur
@@ -176,110 +183,138 @@ public class TropicalMatrix {
 		
 		return result;
 	}
+
+	private TropicalAtom[] vectorOrganize(int[] listPos, TropicalAtom[] listElem){
+		for (int i = 0; i < listElem.length; i++) {
+			TropicalAtom elemtmp = listElem[i];
+			listElem[i] = listElem[listPos[i]];
+			listElem[listPos[i]] = elemtmp;
+		}
+		return listElem;
+	}
 	
+	public TropicalAtom[] computeMaxTrust(TropicalAtom[] initialTrustVector, int terminalTime){
+		TropicalAtom[] tmp = maxTrust(initialTrustVector, terminalTime);
+		TropicalAtom[] result = new TropicalAtom[tmp.length];
+
+		for (int i = 0; i < tmp.length; i++) {
+			result[positionOfAgentInTrustMatrixRow[i]] = tmp[i];
+		}
+
+		return result;
+	}
+
 	public Pair maxPower(TropicalAtom[] r) {
 		int p = 0;
-		TropicalAtom convergenceAtom = new TropicalAtom(convergence);
+		TropicalAtom convergenceAtomPlus = new TropicalAtom(convergence);
+		TropicalAtom convergenceAtomMinus = new TropicalAtom(-convergence);
 		int q = -1;
-		ArrayList<TropicalAtom[]> listOfEigenVector = new ArrayList<>();
-		listOfEigenVector.add(r);
-				
-		boolean conditionContinue = true;
+		ArrayList<TropicalAtom[]> vArray = new ArrayList<>();
+		vArray.add(vectorOrganize(positionOfAgentInTrustMatrixRow, r));
+		
+		boolean conditionContinue = false;
 		do {
-			listOfEigenVector.add(tropicalMatrixMultiplicationByVector(getTranspose(), listOfEigenVector.get(p)));
+			vArray.add(tropicalMatrixMultiplicationByVector(getTranspose(), vArray.get(p)));
 			p++;
-			TropicalAtom[] vp = listOfEigenVector.get(p);
-			
-			for (int i = 0; i < p; i++) {
-				TropicalAtom[] vi = listOfEigenVector.get(i);
-				int index = 0;
-				while (index < vi.length && vi[index].tropicalMultiplication(convergenceAtom).equals(vp[index])) {					
-					index++;
-					if (index == vi.length - 1) {
-						conditionContinue = false;
-						q = i;
+			TropicalAtom[] vp = vArray.get(p);
+			for (q = 0; q <= p; q++) {
+				conditionContinue = false;
+				TropicalAtom[] vq = vArray.get(q);
+
+				for(int i = 0; i<vq.length; i++){
+					
+					if(!vq[i].between(vp[i].tropicalMultiplication(convergenceAtomMinus), vp[i].tropicalMultiplication(convergenceAtomPlus))){
+						conditionContinue = true;
 					}
 				}
-				if (q >= 0) {
+				if (!conditionContinue) {
 					break;
 				}
 			}
 		}while(conditionContinue);
+		
 		double lambda = convergence / (p-q);
-		
-		TropicalAtom[] v = new TropicalAtom[numberOfAgent];
-		for (int i = 0; i < v.length; i++) {
-			v[i] = new TropicalAtom();
-		}
-		
+		TropicalAtom[] v = vArray.get(p);
 		for (int i = 1; i < p-q; i++) {
-			TropicalAtom[] vqPlusIMoins1 = listOfEigenVector.get(q+i-1);
-			double lambdaPower = 1;
+			TropicalAtom[] vqPlusIMinus1 = vArray.get(q+i-1);
+			double lambdaPower = 0;
 			for (int j = 0; j < p-q-i; j++) {
-				lambdaPower *= lambda;
+				lambdaPower += lambda;
 			}
-			TropicalAtom[] vectorMultiplied = tropicalVectorMultiplicationByValue(vqPlusIMoins1, lambdaPower);
+			TropicalAtom[] vectorMultiplied = tropicalVectorMultiplicationByValue(vqPlusIMinus1, lambdaPower);
+			
 			v = tropicalVectorAddition(v,vectorMultiplied);
 		}
 		
 		return new Pair(lambda,v);
 	}
 
+
 	public TropicalAtom[] maxTrust(TropicalAtom[] w, int T){
-		int n = trustMatrix.length;
-		tropicalFormNormalJordan(w);
-		Pair[] lambda = new Pair[n];
-		lambda[n] = maxPower(w);
-		Pair[] epsi = lambda;
-		TropicalAtom[] v = new TropicalAtom[n];
-		int j = n-1;
-		while(j>1){
-			lambda[j] = maxPower(w);
-			TropicalAtom lambdaValue = lambda[j].getDominantEigenVector()[0];
-			for(int i = 1; i<j-1; i++){
-				lambdaValue = lambdaValue.tropicalMultiplication(lambda[j].getDominantEigenVector()[i]);
-			}
-			v[j] = trustMatrix[j][1].tropicalMultiplication(w[1].tropicalMultiplication(lambdaValue));
-			
-			lambdaValue = lambda[j].getDominantEigenVector()[0];
-			for(int i = 1; i<j-1; i++){
-				lambdaValue = lambdaValue.tropicalMultiplication(lambda[j].getDominantEigenVector()[i]);
-			}
-			for (int k = 1; k < n; k++) {
-				v[j] = v[j].tropicalAddition(trustMatrix[j][k].tropicalMultiplication(w[k].tropicalMultiplication(lambdaValue))); 
-			}
+        int n = trustMatrix.length;
+        Pair[] lambda = new Pair[n];
+        double[] epsi = new double[n];
+        tropicalFormNormalJordan();
+        lambda[n-1] = maxPower(w);
+        epsi[n-1] = lambda[n-1].getDominantEigenValue();
+        TropicalAtom[] v = lambda[n-1].getDominantEigenVector();
+        int j = n-2;
+		
+        while(j>0){
+            lambda[j] = maxPower(w);
+            TropicalAtom lambdaValue = lambda[j].getDominantEigenVector()[0];
+            for(int i = 1; i<j; i++){
+                lambdaValue = lambdaValue.tropicalMultiplication(lambda[j].getDominantEigenVector()[i]);
+            }
+            v[j-1] = trustMatrix[j][1].tropicalMultiplication(w[1].tropicalMultiplication(lambdaValue));
+            
+            lambdaValue = lambda[j].getDominantEigenVector()[0];
+            for(int i = 0; i<j; i++){
+                lambdaValue = lambdaValue.tropicalMultiplication(lambda[j].getDominantEigenVector()[i]);
+            }
+            for (int k = 0; k < n; k++) {
+                v[j-1] = v[j-1].tropicalAddition(trustMatrix[j][k].tropicalMultiplication(w[k].tropicalMultiplication(lambdaValue))); 
+            }
+            if (lambda[j].getDominantEigenValue()>epsi[j+1]) {
+                epsi[j] = lambda[j].getDominantEigenValue();
+            }else{
+                epsi[j] = lambda[j+1].getDominantEigenValue();
+                v[j-1] = new TropicalAtom(1/epsi[j]).tropicalMultiplication(v[j-1]);
+            }
+            j--;
+        }
+        TropicalAtom epsiValue = new TropicalAtom(epsi[0]);
+        for (int i = 0; i < T; i++) {
+            epsiValue.tropicalMultiplication(new TropicalAtom(epsi[0]));
+        }
+        TropicalAtom[] fin = tropicalVectorMultiplicationByValue(v,epsiValue.getValue());
+		//printAgentValue(v);
+        return fin;
+    }
 
-			if (lambda[j].getDominantEigenValue()>epsi[j+1].getDominantEigenValue()) {
-				epsi[j] = lambda[j];
-			}else{
-				epsi[j] = lambda[j+1];
-				v[j] = new TropicalAtom(1/epsi[j].getDominantEigenValue()).tropicalMultiplication(v[j]);
-			}
-			j--;
+	public void printAgentValue(TropicalAtom[] values){
+		System.out.print("[ ");
+		for (int i = 0; i < values.length; i++) {
+			System.out.print(positionOfAgentInTrustMatrixRow[i]+" : "+values[positionOfAgentInTrustMatrixRow[i]]+", ");
 		}
-		TropicalAtom[] epsiValue = epsi[1].getDominantEigenVector();
-		for (int i = 2; i < T; i++) {
-			epsiValue = tropicalVectorMultiplication(epsiValue, epsi[i].getDominantEigenVector());
-		}
-		TropicalAtom[] fin = tropicalVectorMultiplication(v,epsiValue);
-		return fin;
+		System.out.println(" ]");
 	}
-
-
 	//-------------------------------------------
 	//-------------------------------------------
 	// trigonalisation sur des matrices tropical
 	//-------------------------------------------
 	//-------------------------------------------
 
-	public void tropicalTrigonalisation(TropicalAtom[] v) {
+	public void tropicalTrigonalisation() {
+		TropicalAtom[] v = getDiagonal();
 		int n = numberOfAgent;
 		for (int k = 0; k < v.length; k++) {
 			TropicalAtom lambda = v[k];
 			tropicalMatrixSoustraction(tropicalIdentityMatrix(n).tropicalMatrixMultiplicationByValue(lambda).getTrustMatrix());
+			
 			for (int j = n-1; j > k; j--) {
 				int i = k;
-				while(i<n && trustMatrix[i][j].getValue()==0){
+				while(i<n && (trustMatrix[i][j].equals(new TropicalAtom(0)))){
 					i ++;
 				}
 				if (i>n-1) {
@@ -290,9 +325,13 @@ public class TropicalMatrix {
 					}
 				}else{
 					for (int jj = k; jj < j; jj++) {
-						double top = -trustMatrix[i][jj].getValue();
-						double bot = trustMatrix[i][j].getValue();
-						double coef = top/bot;
+						Double top = trustMatrix[i][jj].getValue();
+						Double bot = trustMatrix[i][j].getValue();
+						
+						if (top == null || bot == null) {
+							continue;
+						}
+						double coef = (-top)/bot;
 						if (coef==0 || bot == 0) {
 							continue;
 						}
@@ -304,15 +343,24 @@ public class TropicalMatrix {
 			tropicalMatrixAddition(tropicalIdentityMatrix(n).tropicalMatrixMultiplicationByValue(lambda).getTrustMatrix());
 		}
 	}
+	public TropicalAtom[] getDiagonal(){
+		TropicalAtom[] dia = new TropicalAtom[trustMatrix.length];
+		for (int i = 0; i < trustMatrix.length; i++) {
+			dia[i] = trustMatrix[i][i];
+		}
+		return dia;
+	}
 	public void addColTropicalMatrix(int i, int ii, double coef){
 		for (int k = 0; k < numberOfAgent; k++) { 
-			trustMatrix[k][ii].addition(new TropicalAtom(trustMatrix[k][i].getValue()*coef));
+			TropicalAtom val = trustMatrix[k][i].tropicalMultiplication(new TropicalAtom(coef));
+			trustMatrix[k][ii].tropicalAddition(val);
 		}
 	}
 
 	public void addRowTropicalMatrix(int i, int ii, double coef){
 		for (int k = 0; k < numberOfAgent; k++) {
-			trustMatrix[ii][k].addition(new TropicalAtom(trustMatrix[i][k].getValue()*coef));
+			TropicalAtom val = trustMatrix[i][k].tropicalMultiplication(new TropicalAtom(coef));
+			trustMatrix[ii][k].tropicalAddition(val);
 		}
 	}
 	
@@ -320,23 +368,25 @@ public class TropicalMatrix {
 		int n = m.length;
         for(int i = 0; i < n; i++) {
             for (int j = 0; j < n; j++) {
-                trustMatrix[i][j].addition(m[i][j]);
+                trustMatrix[i][j].tropicalAddition(m[i][j]);
             }
         }
 	}
+	
 	public void tropicalMatrixSoustraction(TropicalAtom[][] m){
 		int n = m.length;
         for(int i = 0; i < n; i++) {
             for (int j = 0; j < n; j++) {
-                trustMatrix[i][j].soustraction(m[i][j]);
+                trustMatrix[i][j].tropicalAddition(new TropicalAtom(-m[i][j].getValue()));
             }
         }
 	}
+
 	public TropicalMatrix tropicalMatrixMultiplicationByValue(TropicalAtom value) {
 		int n = trustMatrix.length;
 		for(int i = 0; i < n; i++) {
             for (int j = 0; j < n; j++) {
-				trustMatrix[i][j].setValue(trustMatrix[i][j].getValue()*value.getValue());
+				trustMatrix[i][j].tropicalMultiplication(value);
             }
         }
 		return this;
@@ -349,13 +399,12 @@ public class TropicalMatrix {
 				if (i==j) {
 					m[i][j] = new TropicalAtom(1);
 				}else{
-					m[i][j] = new TropicalAtom(0);
+					m[i][j] = new TropicalAtom(Double.NEGATIVE_INFINITY);
 				}
 			}
 		}
 		return new TropicalMatrix(n, 1, m);
 	}
-
 	//-------------------------------------------
 	//-------------------------------------------
 	// bloc independant sur des matrices tropical
@@ -367,8 +416,8 @@ public class TropicalMatrix {
 		for (int k = 0; k < n; k++) {
 			for (int i = 0; i < n-k; i++) {
 				int j = i + k;
-				double top = -trustMatrix[i][j].getValue();
-				double bot = trustMatrix[i][i].getValue()-trustMatrix[j][j].getValue();
+				Double top = -trustMatrix[i][j].getValue();
+				Double bot = trustMatrix[i][i].getValue()-trustMatrix[j][j].getValue();
 				if (trustMatrix[i][i].getValue()==trustMatrix[j][j].getValue() || trustMatrix[i][j].getValue()==0 || bot==0) {
 					continue;
 				}else{
@@ -386,7 +435,7 @@ public class TropicalMatrix {
 	//-------------------------------------------
 	//-------------------------------------------
 
-	public void tropicalJordaniser_blocs(){
+	public void tropicalJordanBlocs(){
 		int n = numberOfAgent;
 		for (int k = 1; k < n; k++) {
 			tropicalTraiter_colonne(k);
@@ -410,10 +459,8 @@ public class TropicalMatrix {
 		}
 		if (l > -1) {
 			for (int j = k; j > l+1; j--) {
-				//System.out.println("deplacement");
 				swapColumn(j, j-1);
 				swapRow(j, j-1);
-				//System.out.println("["+j+","+(j-1)+"]");
 			}
 		}
 	}
@@ -435,12 +482,11 @@ public class TropicalMatrix {
 				if (trustMatrix[i][k].getValue()!=0) {
 					fin_bloc2 = i;
 					debut_bloc2 = tropicalLimite_bloc_jordan(fin_bloc2);
-					//System.out.println("Confrontation");
+					//Confrontation
 					if (fin_bloc2-debut_bloc2>=fin_bloc1-debut_bloc1) {
 						for (int ii = fin_bloc1; ii >= ((debut_bloc1-1)<0?debut_bloc1:debut_bloc1-1); ii--) {
 							addColTropicalMatrix(ii, fin_bloc2+ii-fin_bloc1, 1);
 							addRowTropicalMatrix(fin_bloc2+ii-fin_bloc1, ii, -1);
-							//System.out.println("["+(ii)+","+(fin_bloc2+ii-fin_bloc1)+","+1+"]");
 						}
 						debut_bloc1 = debut_bloc2;
 						fin_bloc1 = fin_bloc2;
@@ -448,7 +494,6 @@ public class TropicalMatrix {
 						for (int ii = fin_bloc2; ii >= ((debut_bloc2-1)<0?debut_bloc2:debut_bloc2-1); ii--) {
 							addColTropicalMatrix(ii, fin_bloc1+ii-fin_bloc2, 1);
 							addRowTropicalMatrix(fin_bloc1+ii-fin_bloc2, ii, -1);
-							//System.out.println("["+(ii)+","+(fin_bloc1+ii-fin_bloc2)+","+1+"]");
 						}
 					}
 				}
@@ -461,11 +506,10 @@ public class TropicalMatrix {
 			double coef = trustMatrix[fin_bloc][k].getValue();
 			if (coef != 0 && coef != 1) {
 				int debut_bloc = tropicalLimite_bloc_jordan(fin_bloc);
-				for (int i = fin_bloc; i >= debut_bloc-1; i--) {
-					//System.out.println("Normalisation");
+				for (int i = fin_bloc; i >= ((debut_bloc-1)<0?debut_bloc:debut_bloc-1); i--) {
+					//Normalisation");
 					tropicalMulCol(i,coef);
 					tropicalMulRow(i,1/coef);
-					//System.out.println("["+(i)+","+(i)+","+coef+"]");
 				}
 			}
 		}
@@ -487,7 +531,7 @@ public class TropicalMatrix {
 		int n = numberOfAgent;
         for(int j = 0; j < n; j++) {
 			if(trustMatrix[j][i].getValue() != 0.0){
-				trustMatrix[j][i].multiplication(new TropicalAtom(coef));
+				trustMatrix[j][i].tropicalMultiplication(new TropicalAtom(coef));
 			}
         }
 	}
@@ -496,7 +540,7 @@ public class TropicalMatrix {
 		int n = numberOfAgent;
         for(int j = 0; j < n; j++) {
 			if(trustMatrix[i][j].getValue() != 0.0){
-				trustMatrix[i][j].multiplication(new TropicalAtom(coef));
+				trustMatrix[i][j].tropicalMultiplication(new TropicalAtom(coef));
 			}
 		}
 	}
@@ -504,31 +548,20 @@ public class TropicalMatrix {
 	private void tropicalAnnuler_coefs_colonne(int k) {
 		for (int i = 0; i < k-1; i++) {
 			if (trustMatrix[i][k].getValue() != 0 && trustMatrix[i][i+1].getValue() != 0) {
-				//System.out.println("Annulation");
+				//Annulation
 				double coef = (-trustMatrix[i][k].getValue())/trustMatrix[i][i+1].getValue();
 				addColTropicalMatrix(i+1, k, coef);
 				addRowTropicalMatrix(k, i+1, -coef);
-				//System.out.println("["+(i+1)+","+(k)+","+coef+"]");
 			}
 		}
 	}
 
-	public void tropicalFormNormalJordan(TropicalAtom[] vecteur){
-		tropicalTrigonalisation(vecteur);
+	public void tropicalFormNormalJordan(){
+		tropicalTrigonalisation();
 		tropicalIndependentBloc();
-		tropicalJordaniser_blocs();
+		tropicalJordanBlocs();
 	}
 
-	public static void printTrustMatrix(TropicalAtom[][] trustMatrix) {
-		for (int i = 0; i < trustMatrix.length; i++) {
-			System.out.print("[");
-			for (int j = 0; j < trustMatrix[i].length; j++) {
-				System.out.print(trustMatrix[i][j] );
-				if (j == trustMatrix[i].length -1) 
-					System.out.println("]");
-				else 
-					System.out.print(",\t");
-			}
-		}
-	}
+	
+	
 }

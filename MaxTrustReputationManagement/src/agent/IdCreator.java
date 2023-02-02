@@ -34,11 +34,11 @@ public class IdCreator {
 	}
 	
 	/**
-	 * retourne le nombre d'Agents dans le system
+	 * retourne le nombre d'Agents dans le système
 	 * @return le nombre total d'Agent
 	 */
 	public int getNumberOfAgent() {
 		int num = idCreator.numberOfAgents;
-		return num + 1;
+		return num;
 	}
 }
