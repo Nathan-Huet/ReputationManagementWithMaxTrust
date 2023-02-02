@@ -6,7 +6,7 @@ import agent.Agent;
  * Cette classe est utilisée pour modéliser la Strategy d'un Agent produisant toujours des résultats négatifs
  *
  */
-public class ThreatAStrategy extends Strategy{
+public class ThreatAStrategy extends StrategyAbstract{
 
 	@Override
 	public boolean getInteractionResult() {

@@ -49,38 +49,7 @@ public class TropicalAtom {
 			return new TropicalAtom(this.value);
 		}
 		return new TropicalAtom(this.value + atom.getValue());
-	}
-
-	public TropicalAtom soustraction(TropicalAtom atom) {
-		if (isNegativeInfinite() && atom.isNegativeInfinite()) {
-			return this;
-		}else if (isNegativeInfinite()){
-			return new TropicalAtom(-atom.getValue());
-		}else if(atom.isNegativeInfinite()){
-			return new TropicalAtom(value);
-		}else{
-			return new TropicalAtom(value - atom.getValue());
-		}
-	}
-
-	public TropicalAtom addition(TropicalAtom atom) {
-		if (isNegativeInfinite() && atom.isNegativeInfinite()) {
-			return this;
-		}else if(isNegativeInfinite()){
-			return new TropicalAtom(atom.getValue());
-		}else if(atom.isNegativeInfinite()){
-			return new TropicalAtom(value);
-		}else{
-			return new TropicalAtom(value + atom.getValue());
-		}
-	}
-	public TropicalAtom multiplication(TropicalAtom atom) {
-		if (isNegativeInfinite() || atom.isNegativeInfinite()) {
-			return this;
-		}else{
-			return new TropicalAtom(value * atom.getValue());
-		}
-	}
+	}	
 
 	@Override
 	public String toString() {
@@ -97,7 +66,6 @@ public class TropicalAtom {
 
 	@Override
 	public boolean equals(Object obj) {
-		//TODO voir si equals ne cause pas de problèmes
 		if (this == obj)
 			return true;
 		if (obj == null)

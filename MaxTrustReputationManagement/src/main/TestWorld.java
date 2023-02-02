@@ -7,13 +7,10 @@ public class TestWorld {
     public static void main(String[] args) {
         double convergence = 0.1;
         World world = new World(3,20, 10, convergence);
-        //System.out.println(world);
-        //TestWorld tworld = new TestWorld();
-        //tworld.launch1(world);
+
         int numberOfSimulationCycles = 30;
         int numberOfQueryCycles = 50;
         int terminalTime = 5;
-        //TropicalAtom[] v = world.initialTrustVector();
         
         world.runOneExperiment(numberOfSimulationCycles,numberOfQueryCycles,terminalTime);
         System.out.println("1: " + world.realNumberOfSuccessfulInteractionsGoodAgents());

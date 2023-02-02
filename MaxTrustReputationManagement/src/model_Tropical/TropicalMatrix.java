@@ -2,9 +2,6 @@ package model_Tropical;
 
 import java.util.ArrayList;
 
-import main.Application;
-import world.World;
-
 
 public class TropicalMatrix {
 	private int numberOfAgent;
@@ -141,25 +138,6 @@ public class TropicalMatrix {
 	}
 
 	/**
-	 * retourne le résultat d'une multiplication de matrice par un vecteur
-	 * @param matrix matrice
-	 * @param vector vecteur
-	 * @return résultat d'une multiplication de matrice par un vecteur
-	 */
-	public TropicalAtom[] matrixMultiplicationByVector(TropicalAtom[][] matrix, TropicalAtom[] vector) {
-		TropicalAtom[] result = new TropicalAtom[vector.length];
-		for (int i = 0; i < result.length; i++) {
-			result[i] = new TropicalAtom();
-		}
-		for (int i = 0; i < matrix.length; i++) {
-			for (int j = 0; j < matrix[i].length; j++) {
-				result[i] = result[i].addition(matrix[i][j].multiplication(vector[i]));
-			}
-		}
-		return result;
-	}
-	
-	/**
 	 * retourne le résultat d'une multiplication d'un vecteur par un entier
 	 * @param vector vecteur
 	 * @param integer entier
@@ -242,19 +220,7 @@ public class TropicalMatrix {
 			for (q = 0; q <= p; q++) {
 				conditionContinue = false;
 				TropicalAtom[] vq = vArray.get(q);
-				/*
-				System.out.println("-- vq :");
-				for (TropicalAtom tropicalAtom : vq) {
-					System.out.print(tropicalAtom.getValue()+", ");
-				}
-				System.out.println("");
-				System.out.println("-- vp :");
-				for (TropicalAtom tropicalAtom : vp) {
-					System.out.print(tropicalAtom.getValue()+", ");
-				}
-				System.out.println("");
-				*/
-				//printTrustMatrix(trustMatrix);
+
 				for(int i = 0; i<vq.length; i++){
 					
 					if(!vq[i].between(vp[i].tropicalMultiplication(convergenceAtomMinus), vp[i].tropicalMultiplication(convergenceAtomPlus))){
@@ -406,6 +372,7 @@ public class TropicalMatrix {
             }
         }
 	}
+	
 	public void tropicalMatrixSoustraction(TropicalAtom[][] m){
 		int n = m.length;
         for(int i = 0; i < n; i++) {
@@ -414,6 +381,7 @@ public class TropicalMatrix {
             }
         }
 	}
+
 	public TropicalMatrix tropicalMatrixMultiplicationByValue(TropicalAtom value) {
 		int n = trustMatrix.length;
 		for(int i = 0; i < n; i++) {
@@ -491,10 +459,8 @@ public class TropicalMatrix {
 		}
 		if (l > -1) {
 			for (int j = k; j > l+1; j--) {
-				//System.out.println("deplacement");
 				swapColumn(j, j-1);
 				swapRow(j, j-1);
-				//System.out.println("["+j+","+(j-1)+"]");
 			}
 		}
 	}
@@ -516,12 +482,11 @@ public class TropicalMatrix {
 				if (trustMatrix[i][k].getValue()!=0) {
 					fin_bloc2 = i;
 					debut_bloc2 = tropicalLimite_bloc_jordan(fin_bloc2);
-					//System.out.println("Confrontation");
+					//Confrontation
 					if (fin_bloc2-debut_bloc2>=fin_bloc1-debut_bloc1) {
 						for (int ii = fin_bloc1; ii >= ((debut_bloc1-1)<0?debut_bloc1:debut_bloc1-1); ii--) {
 							addColTropicalMatrix(ii, fin_bloc2+ii-fin_bloc1, 1);
 							addRowTropicalMatrix(fin_bloc2+ii-fin_bloc1, ii, -1);
-							//System.out.println("["+(ii)+","+(fin_bloc2+ii-fin_bloc1)+","+1+"]");
 						}
 						debut_bloc1 = debut_bloc2;
 						fin_bloc1 = fin_bloc2;
@@ -529,7 +494,6 @@ public class TropicalMatrix {
 						for (int ii = fin_bloc2; ii >= ((debut_bloc2-1)<0?debut_bloc2:debut_bloc2-1); ii--) {
 							addColTropicalMatrix(ii, fin_bloc1+ii-fin_bloc2, 1);
 							addRowTropicalMatrix(fin_bloc1+ii-fin_bloc2, ii, -1);
-							//System.out.println("["+(ii)+","+(fin_bloc1+ii-fin_bloc2)+","+1+"]");
 						}
 					}
 				}
@@ -543,11 +507,9 @@ public class TropicalMatrix {
 			if (coef != 0 && coef != 1) {
 				int debut_bloc = tropicalLimite_bloc_jordan(fin_bloc);
 				for (int i = fin_bloc; i >= ((debut_bloc-1)<0?debut_bloc:debut_bloc-1); i--) {
-					//System.out.println("Normalisation");
-					//System.out.println(i);
+					//Normalisation");
 					tropicalMulCol(i,coef);
 					tropicalMulRow(i,1/coef);
-					//System.out.println("["+(i)+","+(i)+","+coef+"]");
 				}
 			}
 		}
@@ -586,11 +548,10 @@ public class TropicalMatrix {
 	private void tropicalAnnuler_coefs_colonne(int k) {
 		for (int i = 0; i < k-1; i++) {
 			if (trustMatrix[i][k].getValue() != 0 && trustMatrix[i][i+1].getValue() != 0) {
-				//System.out.println("Annulation");
+				//Annulation
 				double coef = (-trustMatrix[i][k].getValue())/trustMatrix[i][i+1].getValue();
 				addColTropicalMatrix(i+1, k, coef);
 				addRowTropicalMatrix(k, i+1, -coef);
-				//System.out.println("["+(i+1)+","+(k)+","+coef+"]");
 			}
 		}
 	}
@@ -601,16 +562,6 @@ public class TropicalMatrix {
 		tropicalJordanBlocs();
 	}
 
-	public static void printTrustMatrix(TropicalAtom[][] trustMatrix) {
-		for (int i = 0; i < trustMatrix.length; i++) {
-			System.out.print("[");
-			for (int j = 0; j < trustMatrix[i].length; j++) {
-				System.out.print(trustMatrix[i][j] );
-				if (j == trustMatrix[i].length -1) 
-					System.out.println("]");
-				else 
-					System.out.print(",\t");
-			}
-		}
-	}
+	
+	
 }
