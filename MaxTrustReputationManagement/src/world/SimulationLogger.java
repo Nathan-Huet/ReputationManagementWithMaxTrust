@@ -12,6 +12,7 @@ public class SimulationLogger {
 	private int[][] realNumberOfSuccessfulInteractions;
     private int numberOfQueryCycles;
     private int numberOfSimulationCycles;
+    private int numberOfAgentQueryWithoutResponse;
 
     private SimulationLogger() {}
 
@@ -25,6 +26,7 @@ public class SimulationLogger {
 			simulationLogger.numberOfAgents = IdCreator.getIdCreator().getNumberOfAgent();
             simulationLogger.numberOfQueryCycles = 0;
             simulationLogger.numberOfSimulationCycles = 0;
+            simulationLogger.numberOfAgentQueryWithoutResponse = 0;
             int number = simulationLogger.numberOfAgents;
             simulationLogger.numberOfSuccessfulInteractions = new int[number][];
 		    simulationLogger.numberOfUnsuccessfulInteractions = new int[number][];
@@ -108,5 +110,13 @@ public class SimulationLogger {
 
     public void resetSimulationCycles() {
         numberOfSimulationCycles = 0;
+    }
+
+    public void newAgentQueryWithoutResponse() {
+        numberOfAgentQueryWithoutResponse++;
+    }
+
+    public int getNumberOfAgentQueryWithoutResponse() {
+        return numberOfAgentQueryWithoutResponse;
     }
 }

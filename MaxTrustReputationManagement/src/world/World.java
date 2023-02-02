@@ -305,7 +305,6 @@ public class World {
             }
         }
         Random random = new Random();
-        int numberOfAgentQueryWithoutResponse = 0;
 
         for (Agent agent : agentsIssuingQuery) {
             ArrayList<Agent> agentsListeningWork = new ArrayList<>();
@@ -350,8 +349,8 @@ public class World {
 
             }else{
                 if (agentsListeningProbabilityWork.size() == 0) {
-                    numberOfAgentQueryWithoutResponse++;
-                    System.out.println("Query without response in this cycle: " + numberOfAgentQueryWithoutResponse);
+                    SimulationLogger.getSimulationLogger().newAgentQueryWithoutResponse();
+                    System.out.println("Query without response in this cycle: " + SimulationLogger.getSimulationLogger().getNumberOfAgentQueryWithoutResponse());
                     break;
                 }
 
