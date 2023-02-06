@@ -183,7 +183,12 @@ public class TropicalMatrix {
 		
 		return result;
 	}
-
+	/**
+	 * range une liste d'atome tropicaux dans l'ordre de la liste d'agents
+	 * @param listPos liste d'agents
+	 * @param listElem liste atome tropicaux
+	 * @return liste atome tropicaux rangé
+	 */
 	private TropicalAtom[] vectorOrganize(int[] listPos, TropicalAtom[] listElem){
 		for (int i = 0; i < listElem.length; i++) {
 			TropicalAtom elemtmp = listElem[i];
@@ -193,6 +198,12 @@ public class TropicalMatrix {
 		return listElem;
 	}
 	
+	/**
+	 * Execute MaxTrust en retournant un vecteur de réputation rangé par ordre des agents
+	 * @param initialTrustVector vecteur de confiance initial
+	 * @param terminalTime temps d'arret
+	 * @return vecteur de réputation ordonné
+	 */
 	public TropicalAtom[] computeMaxTrust(TropicalAtom[] initialTrustVector, int terminalTime){
 		TropicalAtom[] tmp = maxTrust(initialTrustVector, terminalTime);
 		TropicalAtom[] result = new TropicalAtom[tmp.length];
@@ -203,7 +214,11 @@ public class TropicalMatrix {
 
 		return result;
 	}
-
+	/**
+	 * Algorithme de convergence par bloc indépendant tropicale
+	 * @param r vecteur deconfiance initial
+	 * @return pair d'un vecteur propre et d'une valeur propre dominante
+	 */
 	public Pair maxPower(TropicalAtom[] r) {
 		int p = 0;
 		TropicalAtom convergenceAtomPlus = new TropicalAtom(convergence);
@@ -249,12 +264,17 @@ public class TropicalMatrix {
 		return new Pair(lambda,v);
 	}
 
-
+	/**
+	 * Algorithme de calcul d'une réputation à base d'algèbre tropicale
+	 * @param w vecteur de confiance initial
+	 * @param T valeur de temps d'arret
+	 * @return vecteur de réputation
+	 */
 	public TropicalAtom[] maxTrust(TropicalAtom[] w, int T){
         int n = trustMatrix.length;
         Pair[] lambda = new Pair[n];
         double[] epsi = new double[n];
-        tropicalFormNormalJordan();
+        tropicalFormNormalJordan(w);
         lambda[n-1] = maxPower(w);
         epsi[n-1] = lambda[n-1].getDominantEigenValue();
         TropicalAtom[] v = lambda[n-1].getDominantEigenVector();
@@ -288,25 +308,20 @@ public class TropicalMatrix {
             epsiValue.tropicalMultiplication(new TropicalAtom(epsi[0]));
         }
         TropicalAtom[] fin = tropicalVectorMultiplicationByValue(v,epsiValue.getValue());
-		//printAgentValue(v);
         return fin;
     }
 
-	public void printAgentValue(TropicalAtom[] values){
-		System.out.print("[ ");
-		for (int i = 0; i < values.length; i++) {
-			System.out.print(positionOfAgentInTrustMatrixRow[i]+" : "+values[positionOfAgentInTrustMatrixRow[i]]+", ");
-		}
-		System.out.println(" ]");
-	}
 	//-------------------------------------------
 	//-------------------------------------------
 	// trigonalisation sur des matrices tropical
 	//-------------------------------------------
 	//-------------------------------------------
 
-	public void tropicalTrigonalisation() {
-		TropicalAtom[] v = getDiagonal();
+	/**
+	 * Algorithme de trigonalisation tropicale
+	 * @param v vecteur propre
+	 */
+	public void tropicalTrigonalisation(TropicalAtom[] v) {
 		int n = numberOfAgent;
 		for (int k = 0; k < v.length; k++) {
 			TropicalAtom lambda = v[k];
@@ -343,13 +358,13 @@ public class TropicalMatrix {
 			tropicalMatrixAddition(tropicalIdentityMatrix(n).tropicalMatrixMultiplicationByValue(lambda).getTrustMatrix());
 		}
 	}
-	public TropicalAtom[] getDiagonal(){
-		TropicalAtom[] dia = new TropicalAtom[trustMatrix.length];
-		for (int i = 0; i < trustMatrix.length; i++) {
-			dia[i] = trustMatrix[i][i];
-		}
-		return dia;
-	}
+
+	/**
+	 * Application d'un calcul sur une seconde colonne par rapport à une première colonne
+	 * @param i première colonne
+	 * @param ii seconde colonne
+	 * @param coef coefficient de multiplication
+	 */
 	public void addColTropicalMatrix(int i, int ii, double coef){
 		for (int k = 0; k < numberOfAgent; k++) { 
 			TropicalAtom val = trustMatrix[k][i].tropicalMultiplication(new TropicalAtom(coef));
@@ -357,6 +372,12 @@ public class TropicalMatrix {
 		}
 	}
 
+	/**
+	 * Application d'un calcul sur une seconde ligne en fonction d'une première ligne
+	 * @param i première ligne
+	 * @param ii seconde ligne
+	 * @param coef coefficient de multiplication
+	 */
 	public void addRowTropicalMatrix(int i, int ii, double coef){
 		for (int k = 0; k < numberOfAgent; k++) {
 			TropicalAtom val = trustMatrix[i][k].tropicalMultiplication(new TropicalAtom(coef));
@@ -364,6 +385,10 @@ public class TropicalMatrix {
 		}
 	}
 	
+	/**
+	 * Addition tropical entre deux matrices
+	 * @param m matrice 
+	 */
 	public void tropicalMatrixAddition(TropicalAtom[][] m){
 		int n = m.length;
         for(int i = 0; i < n; i++) {
@@ -372,7 +397,10 @@ public class TropicalMatrix {
             }
         }
 	}
-	
+	/**
+	 * Soustraction entre deux matrices
+	 * @param m matrice
+	 */
 	public void tropicalMatrixSoustraction(TropicalAtom[][] m){
 		int n = m.length;
         for(int i = 0; i < n; i++) {
@@ -382,6 +410,11 @@ public class TropicalMatrix {
         }
 	}
 
+	/**
+	 * Multiplication d'une matrice par une valeur
+	 * @param value valeur de multiplication
+	 * @return matrice tropicale
+	 */
 	public TropicalMatrix tropicalMatrixMultiplicationByValue(TropicalAtom value) {
 		int n = trustMatrix.length;
 		for(int i = 0; i < n; i++) {
@@ -392,6 +425,11 @@ public class TropicalMatrix {
 		return this;
 	}
 
+	/**
+	 * Création d'une matrice identitaire tropicale
+	 * @param n taille de la matrice
+	 * @return matrice identitaire tropicale
+	 */
 	public TropicalMatrix tropicalIdentityMatrix(int n){
 		TropicalAtom[][] m = new TropicalAtom[n][n];
 		for (int i = 0; i < n; i++) {
@@ -410,7 +448,9 @@ public class TropicalMatrix {
 	// bloc independant sur des matrices tropical
 	//-------------------------------------------
 	//-------------------------------------------
-
+	/**
+	 * Algorithme de bloc indépendant
+	 */
 	public void tropicalIndependentBloc(){
 		int n = numberOfAgent;
 		for (int k = 0; k < n; k++) {
@@ -435,6 +475,9 @@ public class TropicalMatrix {
 	//-------------------------------------------
 	//-------------------------------------------
 
+	/**
+	 * Algorithme de jordanisation d'une matrice triangulaire supérieur en bloc indépendant
+	 */
 	public void tropicalJordanBlocs(){
 		int n = numberOfAgent;
 		for (int k = 1; k < n; k++) {
@@ -442,6 +485,10 @@ public class TropicalMatrix {
 		}
 	}
 
+	/**
+	 * Algorithme de traitement de la jordanisation
+	 * @param k colonne/ligne parcouru 
+	 */
 	private void tropicalTraiter_colonne(int k) {
 		tropicalAnnuler_coefs_colonne(k);
 		tropicalNormaliser_coefs_colonne(k);
@@ -449,6 +496,10 @@ public class TropicalMatrix {
 		tropicalDeplace_colonnes(k);
 	}
 
+	/**
+	 * Fonction d'échange de ligne et de colonne
+	 * @param k colonne/ligne parcouru
+	 */
 	private void tropicalDeplace_colonnes(int k) {
 		int l = -1;
 		for (int i = 0; i < k; i++) {
@@ -465,6 +516,10 @@ public class TropicalMatrix {
 		}
 	}
 
+	/**
+	 * Fonction de confrontation de coefficient
+	 * @param k colonne/ligne parcouru
+	 */
 	private void tropicalConfrontation_coefs(int k) {
 		int debut_bloc1 = -1;
 		int fin_bloc1 = -1;
@@ -501,6 +556,10 @@ public class TropicalMatrix {
 		}
 	}
 
+	/**
+	 * Fonction de normalisation de coefficient
+	 * @param k colonne/ligne parcouru
+	 */
 	private void tropicalNormaliser_coefs_colonne(int k) {
 		for (int fin_bloc = 0; fin_bloc < k; fin_bloc++) {
 			double coef = trustMatrix[fin_bloc][k].getValue();
@@ -515,6 +574,11 @@ public class TropicalMatrix {
 		}
 	}
 
+	/**
+	 * Fonction de calcul d'un bloc de jordan
+	 * @param l début du bloc
+	 * @return début du second bloc
+	 */
 	private int tropicalLimite_bloc_jordan(int l) {
 		int debut_bloc = l;
         for (int i = l-2; i >= 0; i--) {
@@ -527,6 +591,11 @@ public class TropicalMatrix {
 		return debut_bloc;
 	}
 
+	/**
+	 * Fonction de multiplication tropicale d'une colonne
+	 * @param i colonne
+	 * @param coef coefficient de multiplication
+	 */
 	private void tropicalMulCol(int i, double coef) {
 		int n = numberOfAgent;
         for(int j = 0; j < n; j++) {
@@ -536,6 +605,11 @@ public class TropicalMatrix {
         }
 	}
 
+	/**
+	 * Fonction de multiplication tropicale d'une ligne
+	 * @param i ligne
+	 * @param coef coefficient de multiplication
+	 */
 	private void tropicalMulRow(int i, double coef) {
 		int n = numberOfAgent;
         for(int j = 0; j < n; j++) {
@@ -545,6 +619,10 @@ public class TropicalMatrix {
 		}
 	}
 
+	/**
+	 * Fonction d'annulation de coefficient
+	 * @param k colonne/ligne parcouru
+	 */
 	private void tropicalAnnuler_coefs_colonne(int k) {
 		for (int i = 0; i < k-1; i++) {
 			if (trustMatrix[i][k].getValue() != 0 && trustMatrix[i][i+1].getValue() != 0) {
@@ -556,8 +634,12 @@ public class TropicalMatrix {
 		}
 	}
 
-	public void tropicalFormNormalJordan(){
-		tropicalTrigonalisation();
+	/**
+	 * Algorithme de jordanisation
+	 * @param w vecteur propre
+	 */
+	public void tropicalFormNormalJordan(TropicalAtom[] w){
+		tropicalTrigonalisation(w);
 		tropicalIndependentBloc();
 		tropicalJordanBlocs();
 	}

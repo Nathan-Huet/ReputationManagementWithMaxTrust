@@ -6,7 +6,7 @@ import world.World;
 public class TestWorld {
     public static void main(String[] args) {
         double convergence = 0.1;
-        World world = new World(3,20, 10, convergence);
+        World world = new World(3,7, 4, convergence);
 
         int numberOfSimulationCycles = 30;
         int numberOfQueryCycles = 50;

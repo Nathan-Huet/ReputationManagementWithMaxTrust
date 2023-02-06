@@ -8,6 +8,7 @@ import agent.GoodAgent;
 import agent.ThreatAgent;
 import factory.GoodAgentFactory;
 import factory.ThreatAFactory;
+import factory.ThreatBFactory;
 import model_Tropical.TropicalAtom;
 import model_Tropical.TropicalMatrix;
 
@@ -52,6 +53,7 @@ public class World {
         trustedPeers = new ArrayList<>();
 
         Agent agent;
+        
         for (int i = 0; i < numberOfTrustedPeers; i++) {
             agent = factoryGood.getAgent(numberOfAgent);
             trustedPeers.add((GoodAgent) agent);

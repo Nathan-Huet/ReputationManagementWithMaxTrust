@@ -2,6 +2,9 @@ package model_Tropical;
 
 import java.util.Objects;
 
+/**
+ * Atome tropicale
+ */
 public class TropicalAtom {
 	private Double value = Double.NEGATIVE_INFINITY;
 	public static double precision = 0.000001;
@@ -24,10 +27,19 @@ public class TropicalAtom {
 		this.value = value;
 	}
 
+	/**
+	 * Vérifie si l'atome et négatif infini
+	 * @return
+	 */
 	public boolean isNegativeInfinite() {
 		return (value == null)||(value == Double.NEGATIVE_INFINITY);
 	}
 
+	/**
+	 * Addition tropicale entre deux atomes tropicaux
+	 * @param atom second atome tropicale
+	 * @return atome tropicale
+	 */
 	public TropicalAtom tropicalAddition(TropicalAtom atom){
 		if (isNegativeInfinite()) {
 			return atom;
@@ -41,6 +53,11 @@ public class TropicalAtom {
 		return this;
 	}
 
+	/**
+	 * Multiplciation tropicale entre deux atomes
+	 * @param atom second atome tropicale
+	 * @return atome tropicale
+	 */
 	public TropicalAtom tropicalMultiplication(TropicalAtom atom) {
 		if (isNegativeInfinite()) {
 			return new TropicalAtom(atom.getValue());
